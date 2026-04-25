@@ -40,10 +40,10 @@ export function PostCard({ post, onClick, onLike }: PostCardProps) {
             whileHover={{ y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={() => onClick(post.id)}
-            className="bg-white rounded-2xl card-border overflow-hidden transition-all duration-300 cursor-pointer flex flex-col shadow-sm hover:shadow-md h-full"
+            className="bg-white rounded-3xl card-border overflow-hidden transition-all duration-300 cursor-pointer flex flex-col shadow-sm hover:shadow-md h-full w-full max-w-sm mx-auto"
         >
             {/* Thumbnail */}
-            <div className="h-44 relative overflow-hidden bg-gray-100 flex-shrink-0 group">
+            <div className="aspect-[4/3] relative overflow-hidden bg-gray-100 flex-shrink-0 group">
                 {post.thumbnail_url ? (
                     <img src={post.thumbnail_url} alt="thumbnail" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 ) : (
@@ -55,30 +55,30 @@ export function PostCard({ post, onClick, onLike }: PostCardProps) {
             </div>
             
             {/* Content */}
-            <div className="p-5 flex flex-col justify-between flex-1 space-y-3">
-                <div className="space-y-2">
-                    <div className="flex flex-wrap gap-1">
+            <div className="p-5 flex flex-col justify-between flex-1 space-y-4">
+                <div className="space-y-1.5">
+                    <h4 className="text-xl font-bold text-[#1C1C1E] line-clamp-1 group-hover:text-blue-600 transition-colors">
+                        {post.title}
+                    </h4>
+                    <p className="text-sm text-gray-500 line-clamp-1">
+                        {post.content || "요약 설명이 없습니다."}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 pt-2">
                         {post.grades.map(g => <TagBadge key={g} tag={g} />)}
                         {post.domains.map(d => <TagBadge key={d} tag={d} />)}
                     </div>
-                    <h4 className="text-lg font-bold text-[#1C1C1E] line-clamp-1 group-hover:text-blue-600 transition-colors">
-                        {post.title}
-                    </h4>
-                    <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed h-10">
-                        {post.content}
-                    </p>
                 </div>
 
-                <div className="pt-2 flex flex-col gap-3">
+                <div className="pt-2 flex flex-col gap-4">
                     <button 
                         onClick={handleLink}
-                        className="w-full h-10 flex items-center justify-center gap-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-bold hover:bg-blue-600 hover:text-white transition-all active:scale-95"
+                        className="w-full h-12 flex items-center justify-center gap-2 bg-blue-50 text-blue-600 rounded-2xl text-[15px] font-bold hover:bg-blue-600 hover:text-white transition-all active:scale-95"
                     >
                         <ExternalLink className="w-4 h-4" />
                         도구 바로가기
                     </button>
 
-                    <div className="flex items-center justify-between text-xs text-gray-400 font-medium">
+                    <div className="flex items-center justify-between text-xs text-gray-400 font-medium px-1">
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1.5 hover:text-blue-500 transition-colors">
                                 <Eye className="w-3.5 h-3.5" />

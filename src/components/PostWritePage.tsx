@@ -56,7 +56,8 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
             ctx.font = 'bold 42px "Noto Sans KR", sans-serif';
             ctx.fillStyle = '#FFFFFF';
             
-            const words = (title || url).split(' ');
+            const displayTitle = title.trim() || url.replace(/^https?:\/\//, '').split('/')[0] || '수업 도구';
+            const words = displayTitle.split(' ');
             let line = '';
             let y = 240;
             for(let n = 0; n < words.length; n++) {
@@ -75,6 +76,10 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
             const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
             setThumbnailUrl(dataUrl);
 
+            // Supabase object storage uploading is failing or not needed immediately 
+            // since we can just use the Data URL directly for the DB in a real MVP,
+            // but we'll keep the logic if supabase is defined and try to upload.
+            // If it fails, we just keep the dataUrl.
             if (supabase) {
                 const res = await fetch(dataUrl);
                 const blob = await res.blob();
@@ -85,6 +90,9 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
                     setThumbnailUrl(data.publicUrl);
                 }
             }
+        } catch(error) {
+            console.error('Thumbnail generation failed', error);
+            setThumbnailUrl('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400');
         } finally {
             setIsGenerating(false);
         }
@@ -92,30 +100,46 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
 
     const fetchMetadata = async () => {
         if (!url || !url.startsWith('http')) return;
-        // In a real app, you'd use a server proxy. Here we mock it based on common URLs for demo.
+        
+        let newTitle = title;
         if (url.includes('geogebra')) {
-            setTitle('지오지브라 수업 도구');
-            setContent('인터랙티브 기하/수학 학습 도구입니다.');
+            newTitle = title || '지오지브라 수업 도구';
+            setTitle(newTitle);
+            if(!content) setContent('인터랙티브 기하/수학 학습 도구입니다.');
         } else if (url.includes('desmos')) {
-            setTitle('데스모스 공학용 계산기');
-            setContent('수식 입력과 그래프 생성이 편리한 웹 도구입니다.');
+            newTitle = title || '데스모스 공학용 계산기';
+            setTitle(newTitle);
+            if(!content) setContent('수식 입력과 그래프 생성이 편리한 웹 도구입니다.');
+        } else if (!title) {
+            newTitle = url.replace(/^https?:\/\//, '').split('/')[0];
+            setTitle(newTitle);
+        }
+        
+        if (!thumbnailUrl) {
+            // Give it a tiny delay to ensure state updates
+            setTimeout(generateThumbnail, 100);
         }
     };
 
     const handleSubmit = async () => {
-        if (!title.trim() || !url.trim() || selectedDomains.length === 0 || selectedGrades.length === 0) return;
+        if (!url.trim()) return;
         setIsUploading(true);
-        await createPost({
-            title,
-            content,
-            url,
-            domains: selectedDomains,
-            grades: selectedGrades,
-            thumbnail_url: thumbnailUrl || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400'
-        });
-        playUploadSound();
-        setIsUploading(false);
-        onSuccess();
+        try {
+            await createPost({
+                title: title.trim() || url.replace(/^https?:\/\//, '').split('/')[0] || '유용한 수업 도구',
+                content: content.trim() || '',
+                url: url.trim(),
+                domains: selectedDomains.length > 0 ? selectedDomains : ['기타'],
+                grades: selectedGrades.length > 0 ? selectedGrades : ['공통'],
+                thumbnail_url: thumbnailUrl || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400'
+            });
+            playUploadSound();
+            onSuccess();
+        } catch(error) {
+            console.error(error);
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     return (
@@ -239,8 +263,11 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
                     {/* Submit */}
                     <button 
                         onClick={handleSubmit}
-                        disabled={isUploading || !title.trim() || !url.trim() || selectedDomains.length === 0}
-                        className="w-full bg-[#1C1C1E] text-white font-bold text-lg py-5 rounded-2xl hover:opacity-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-xl shadow-black/10 flex items-center justify-center gap-3"
+                        disabled={isUploading || !url.trim()}
+                        className={cn(
+                            "w-full text-white font-bold text-lg py-5 rounded-2xl transition-all flex items-center justify-center gap-3",
+                            (!url.trim() || isUploading) ? "bg-gray-300 cursor-not-allowed shadow-none text-white/80" : "bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-500/30"
+                        )}
                     >
                         {isUploading ? "업로드 중..." : (
                             <>

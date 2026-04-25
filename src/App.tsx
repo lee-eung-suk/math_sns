@@ -9,12 +9,13 @@ import { FeedPage } from './components/FeedPage';
 import { PostWritePage } from './components/PostWritePage';
 import { PostDetailPage } from './components/PostDetailPage';
 import { AnimatePresence, motion } from 'motion/react';
-import { Plus } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState('home');
   const [currentPostId, setCurrentPostId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   const handlePostClick = (id: string) => {
     setCurrentPostId(id);
@@ -27,6 +28,8 @@ export default function App() {
   const handleWriteSuccess = () => {
     setIsUploadModalOpen(false);
     setCurrentTab('home');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   return (
@@ -83,13 +86,32 @@ export default function App() {
 
       {/* Floating Action Button */}
       <motion.button
+        animate={{ scale: [1, 1.1, 1], boxShadow: ["0px 0px 0px rgba(37,99,235,0)", "0px 0px 30px rgba(37,99,235,0.6)", "0px 0px 0px rgba(37,99,235,0)"] }}
+        transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut", repeatDelay: 1 }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsUploadModalOpen(true)}
-        className="fixed bottom-24 right-6 md:bottom-10 md:right-12 z-50 w-14 h-14 md:w-16 md:h-16 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl shadow-blue-400/40 hover:bg-blue-700 transition-colors"
+        className="fixed bottom-24 right-6 md:bottom-10 md:right-12 z-50 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl shadow-blue-500/50 hover:bg-blue-700 transition-colors"
       >
         <Plus className="w-8 h-8" />
       </motion.button>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 50, x: '-50%' }}
+            className="fixed bottom-8 left-1/2 z-[110] bg-gray-800 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 font-bold"
+          >
+            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+              <Check className="w-4 h-4 text-white" />
+            </div>
+            도구가 등록되었습니다!
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

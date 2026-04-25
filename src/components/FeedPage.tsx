@@ -50,10 +50,12 @@ export function FeedPage({ onPostClick }: { onPostClick: (id: string) => void })
                                 key={g}
                                 onClick={() => setGradeFilter(g)}
                                 className={cn(
-                                    "whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all",
+                                    "whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all border",
                                     gradeFilter === g 
-                                        ? "bg-blue-600 text-white shadow-md shadow-blue-200" 
-                                        : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                                        ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200" 
+                                        : g === '전체' && gradeFilter === '전체'
+                                            ? "bg-gray-800 text-white border-gray-800"
+                                            : "bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:bg-gray-50"
                                 )}>
                                 {g}
                             </button>
@@ -61,16 +63,18 @@ export function FeedPage({ onPostClick }: { onPostClick: (id: string) => void })
                     </div>
 
                     {/* Domain Filter */}
-                    <div className="flex overflow-x-auto hide-scrollbar gap-5 text-sm font-semibold border-t border-gray-50 pt-2">
+                    <div className="flex overflow-x-auto hide-scrollbar gap-2 pt-2">
                         {DOMAINS.map(d => (
                             <button
                                 key={d}
                                 onClick={() => setDomainFilter(d)}
                                 className={cn(
-                                    "whitespace-nowrap py-2 transition-all border-b-2",
+                                    "whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all border",
                                     domainFilter === d 
-                                        ? "text-[#1C1C1E] border-[#1C1C1E]" 
-                                        : "border-transparent text-gray-300 hover:text-gray-500"
+                                        ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200" 
+                                        : d === '전체' && domainFilter === '전체'
+                                            ? "bg-gray-800 text-white border-gray-800"
+                                            : "bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:bg-gray-50"
                                 )}>
                                 {d}
                             </button>
@@ -80,23 +84,26 @@ export function FeedPage({ onPostClick }: { onPostClick: (id: string) => void })
             </div>
 
             {/* Feed List */}
-            <div className="flex-1 overflow-y-auto p-5 md:p-8">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 {isLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 opacity-30">
-                        {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="bg-white rounded-3xl h-80 animate-pulse border border-gray-100" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-30 max-w-7xl mx-auto">
+                        {[1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} className="bg-white rounded-3xl h-[400px] animate-pulse border border-gray-100" />
                         ))}
                     </div>
                 ) : posts.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
                         {posts.map(post => (
                             <PostCard key={post.id} post={post} onClick={onPostClick} />
                         ))}
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-center mt-20 text-gray-400">
-                        <p className="font-semibold">해당하는 수업 도구가 아직 없습니다.</p>
-                        <p className="text-sm">가장 먼저 공유해보시는 건 어떨까요?</p>
+                    <div className="flex flex-col items-center justify-center h-[60vh] text-center px-4">
+                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                            <span className="text-3xl">📭</span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-800 mb-2">아직 등록된 수업 도구가 없습니다</h3>
+                        <p className="text-gray-500 mb-8">오른쪽 아래 + 버튼을 눌러 첫 번째 도구를 공유해보세요!</p>
                     </div>
                 )}
             </div>

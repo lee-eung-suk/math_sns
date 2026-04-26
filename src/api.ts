@@ -16,6 +16,7 @@ export interface Post {
   view_count: number;
   like_count: number;
   created_at: string;
+  updated_at?: string;
 }
 
 // In-memory mock data
@@ -154,11 +155,13 @@ export const toggleLike = async (postId: string, liked: boolean): Promise<void> 
   }
 }
 
-export const updatePost = async (postId: string, postData: Partial<Omit<Post, 'id' | 'created_at'>>) => {
+export const updatePost = async (postId: string, postData: Partial<Omit<Post, 'id' | 'created_at' | 'updated_at'>>) => {
+  const dataWithUpdate = { ...postData, updated_at: new Date().toISOString() };
+  
   const mockUpdate = () => {
     const index = mockPosts.findIndex(p => p.id === postId);
     if (index !== -1) {
-      mockPosts[index] = { ...mockPosts[index], ...postData };
+      mockPosts[index] = { ...mockPosts[index], ...dataWithUpdate };
       return mockPosts[index];
     }
     return null;
@@ -171,7 +174,7 @@ export const updatePost = async (postId: string, postData: Partial<Omit<Post, 'i
   try {
     const { data, error } = await supabase
       .from('tools')
-      .update(postData)
+      .update(dataWithUpdate)
       .eq('id', postId)
       .select()
       .single();

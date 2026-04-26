@@ -1,7 +1,7 @@
 import React from 'react';
 import { Post, toggleLike } from '@/api';
 import { Eye, Heart, Calculator, Triangle, Activity, BarChart3, Puzzle, ArrowRight, Bookmark } from 'lucide-react';
-import { playLikeSound, cn } from '@/lib/utils';
+import { playLikeSound, cn, formatDate } from '@/lib/utils';
 import { motion } from 'motion/react';
 
 interface PostCardProps {
@@ -123,6 +123,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onClick, onLike, isAdm
                 <div className="flex gap-2 items-center mb-1">
                      <span className={cn("text-[10px] font-black tracking-widest uppercase", styles.text)}>
                         #{post.categories[0] || '기타'}
+                    </span>
+                    <span className="text-[11px] font-bold text-gray-400">
+                        · {formatDate(post.created_at)}
                     </span>
                 </div>
 

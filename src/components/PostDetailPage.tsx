@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Post, getPosts, incrementView, toggleLike, supabase } from '@/api';
-import { ChevronLeft, Eye, Heart, Share, ExternalLink, Triangle, Calculator, BarChart3, Activity, Puzzle } from 'lucide-react';
-import { playLikeSound, cn } from '@/lib/utils';
+import { ChevronLeft, Eye, Heart, Share, ExternalLink, Triangle, Calculator, BarChart3, Activity, Puzzle, Calendar } from 'lucide-react';
+import { playLikeSound, cn, formatDate } from '@/lib/utils';
 import { motion } from 'motion/react';
 
 const getCategoryStyles = (categories: string[]) => {
@@ -169,7 +169,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
                             도구 바로가기
                         </button>
 
-                        <div className="flex items-center gap-10 py-6 border-y border-gray-100">
+                        <div className="flex items-center gap-10 py-6 border-y border-gray-100 flex-wrap">
                             <div className="flex items-center gap-2.5">
                                 <Eye className="w-5 h-5 text-gray-400" />
                                 <span className="text-sm font-black text-gray-900">{post.view_count.toLocaleString()} <span className="text-gray-400 font-bold">조회</span></span>
@@ -177,6 +177,10 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
                             <div className="flex items-center gap-2.5">
                                 <Heart className="w-5 h-5 text-gray-400" />
                                 <span className="text-sm font-black text-gray-900">{likeCount} <span className="text-gray-400 font-bold">저장</span></span>
+                            </div>
+                            <div className="flex items-center gap-2.5">
+                                <Calendar className="w-5 h-5 text-gray-400" />
+                                <span className="text-sm font-black text-gray-900">{formatDate(post.created_at)} <span className="text-gray-400 font-bold">등록</span></span>
                             </div>
                         </div>
                     </div>

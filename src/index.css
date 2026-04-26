@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
   --font-display: "SF Pro Display", "Inter", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
+  --font-rounded: "M PLUS Rounded 1c", "Noto Sans KR", sans-serif;
 }
 
 *, ::before, ::after {

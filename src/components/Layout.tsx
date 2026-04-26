@@ -39,13 +39,18 @@ export function Layout({ children, currentTab, isAdmin, onLoginClick, onLogoutCl
         <div className="min-h-screen bg-white text-[#1C1C1E] font-sans flex flex-col lg:flex-row">
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex flex-col w-64 border-r border-[#E5E5EA] p-6 fixed h-full bg-white z-10 space-y-8">
-                <div onClick={() => handleTabClick('home')} className="flex items-center gap-2 cursor-pointer group">
-                    <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105">
-                        <BookOpen className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-black tracking-tight leading-none text-gray-900">수다방</h1>
-                        <p className="text-[11px] font-bold text-gray-500 mt-1">수학 도구 모음</p>
+                <div onClick={() => handleTabClick('home')} className="cursor-pointer group flex flex-col gap-3">
+                    <img 
+                        src="https://i.imgur.com/9zpqJiC.png" 
+                        alt="수다방 로고" 
+                        className="w-40 h-auto rounded-[16px] transition-transform group-hover:scale-[1.02]"
+                        referrerPolicy="no-referrer"
+                    />
+                    <div className="flex flex-col gap-1">
+                        <h1 className="text-[30px] font-extrabold text-[#2563EB] tracking-[-0.03em] leading-[1.2] font-rounded drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                            수다방
+                        </h1>
+                        <p className="text-[14px] font-bold text-[#94A3B8] leading-tight">수학 수업 도구 모음</p>
                     </div>
                 </div>
                 <nav className="flex-1 space-y-2">
@@ -96,6 +101,21 @@ export function Layout({ children, currentTab, isAdmin, onLoginClick, onLogoutCl
             {/* Main Content Area */}
             <main className="flex-1 lg:ml-64 pb-24 lg:pb-0 min-h-screen border-r border-[#E5E5EA] w-full min-w-0 bg-white relative flex justify-center">
                 <div className="w-full lg:max-w-[700px] flex flex-col border-r border-[#E5E5EA]">
+                    {/* Mobile Brand Area */}
+                    <div className="lg:hidden w-full flex flex-col items-center gap-4 py-8 px-4 border-b border-[#E5E5EA]">
+                        <img 
+                            src="https://i.imgur.com/9zpqJiC.png" 
+                            alt="수다방 로고" 
+                            className="w-[85%] max-w-[320px] h-auto rounded-[16px]"
+                            referrerPolicy="no-referrer"
+                        />
+                        <div className="flex flex-col items-center gap-1">
+                            <h1 className="text-[clamp(24px,7vw,32px)] font-extrabold text-[#2563EB] tracking-[-0.03em] leading-[1.2] font-rounded drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                                수다방
+                            </h1>
+                            <p className="text-[clamp(13px,3.5vw,15px)] font-bold text-[#94A3B8]">수학 수업 도구 모음</p>
+                        </div>
+                    </div>
                     {children}
                 </div>
                 

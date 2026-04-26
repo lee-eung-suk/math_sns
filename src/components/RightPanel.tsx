@@ -24,7 +24,7 @@ export function RightPanel({ onPostClick }: { onPostClick: (id: string) => void 
         fetchData();
     }, []);
 
-    const SmallPostItem = ({ post, icon }: { post: Post, icon: string }) => (
+    const SmallPostItem = ({ post, icon }: { post: Post, icon: string, key?: any }) => (
         <div 
             onClick={() => onPostClick(post.id)}
             className="group cursor-pointer p-3 hover:bg-gray-100 rounded-xl transition-all flex flex-col gap-1 border border-transparent hover:border-gray-200"

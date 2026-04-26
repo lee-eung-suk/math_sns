@@ -1,7 +1,7 @@
 import React from 'react';
 import { Post, toggleLike } from '@/api';
 import { TagBadge } from './SubjectBadge';
-import { Eye, Heart, ExternalLink } from 'lucide-react';
+import { Eye, Heart, ExternalLink, Calculator, Triangle, Activity, BarChart3, Puzzle, Ruler, TrendingUp, Hash, Box } from 'lucide-react';
 import { playLikeSound, cn } from '@/lib/utils';
 import { motion } from 'motion/react';
 
@@ -16,11 +16,41 @@ interface PostCardProps {
 
 const getCategoryStyles = (categories: string[]) => {
     const mainCat = categories[0] || '기타';
-    if (mainCat.includes('도형')) return { bg: 'from-violet-500/10 to-purple-500/10', iconBg: 'bg-violet-500', text: 'text-violet-600', dot: 'bg-violet-400' };
-    if (mainCat.includes('수와')) return { bg: 'from-blue-500/10 to-cyan-500/10', iconBg: 'bg-blue-500', text: 'text-blue-600', dot: 'bg-blue-400' };
-    if (mainCat.includes('자료')) return { bg: 'from-emerald-500/10 to-teal-500/10', iconBg: 'bg-emerald-500', text: 'text-emerald-600', dot: 'bg-emerald-400' };
-    if (mainCat.includes('변화')) return { bg: 'from-orange-500/10 to-amber-500/10', iconBg: 'bg-orange-500', text: 'text-orange-600', dot: 'bg-orange-400' };
-    return { bg: 'from-gray-500/10 to-slate-500/10', iconBg: 'bg-gray-500', text: 'text-gray-600', dot: 'bg-gray-400' };
+    if (mainCat.includes('도형') || mainCat.includes('측정')) return { 
+        bg: 'from-purple-50 to-purple-100', 
+        iconBg: 'bg-purple-500', 
+        text: 'text-purple-600', 
+        icon: Triangle,
+        accent: 'bg-purple-200'
+    };
+    if (mainCat.includes('수와')) return { 
+        bg: 'from-blue-50 to-blue-100', 
+        iconBg: 'bg-blue-500', 
+        text: 'text-blue-600', 
+        icon: Calculator,
+        accent: 'bg-blue-200'
+    };
+    if (mainCat.includes('자료')) return { 
+        bg: 'from-yellow-50 to-yellow-100', 
+        iconBg: 'bg-yellow-500', 
+        text: 'text-yellow-600', 
+        icon: BarChart3,
+        accent: 'bg-yellow-200'
+    };
+    if (mainCat.includes('변화')) return { 
+        bg: 'from-green-50 to-green-100', 
+        iconBg: 'bg-green-500', 
+        text: 'text-green-600', 
+        icon: Activity,
+        accent: 'bg-green-200'
+    };
+    return { 
+        bg: 'from-gray-50 to-gray-100', 
+        iconBg: 'bg-gray-400', 
+        text: 'text-gray-500', 
+        icon: Puzzle,
+        accent: 'bg-gray-200'
+    };
 };
 
 export function PostCard({ post, onClick, onLike, isAdmin, onEdit, onDelete }: PostCardProps) {
@@ -68,7 +98,7 @@ export function PostCard({ post, onClick, onLike, isAdmin, onEdit, onDelete }: P
             whileTap={{ scale: 0.98 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={() => onClick(post.id)}
-            className="group bg-white rounded-[32px] overflow-hidden transition-all duration-500 cursor-pointer flex flex-col w-full border border-gray-100 hover:border-gray-200 hover:shadow-[0_20px_50px_rgba(0,0,0,0.04)] relative"
+            className="group bg-white rounded-[24px] overflow-hidden transition-all duration-500 cursor-pointer flex flex-col w-full border border-gray-100 hover:border-gray-200 hover:shadow-xl relative"
         >
             {/* Admin Controls */}
             {isAdmin && (
@@ -88,24 +118,26 @@ export function PostCard({ post, onClick, onLike, isAdmin, onEdit, onDelete }: P
                 </div>
             )}
 
-            {/* Infographic Thumbnail (Horizontal on Desktop) */}
+            {/* Infographic Thumbnail */}
             <div className={cn(
-                "relative flex flex-col sm:flex-row h-auto sm:h-[180px] overflow-hidden bg-gradient-to-br",
+                "relative flex flex-row h-auto overflow-hidden bg-gradient-to-br transition-all duration-500",
+                "aspect-[16/9] sm:aspect-[4/3]",
                 styles.bg
             )}>
-                {/* Visual Elements Decor */}
-                <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                    <div className="w-24 h-24 border-4 border-current rounded-full translate-x-12 -translate-y-12" />
-                    <div className="w-12 h-12 bg-current rotate-45 translate-x-4 translate-y-4" />
+                {/* Background Decor Layer */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                    <div className="absolute top-0 right-0 w-48 h-48 border-[12px] border-current rounded-full translate-x-12 -translate-y-12" />
+                    <div className="absolute bottom-4 left-4 w-12 h-12 rotate-12 border-4 border-current" />
                 </div>
 
-                {/* Left: Content Area (60%) */}
-                <div className="flex-1 p-6 sm:p-8 flex flex-col justify-center gap-2 z-10 sm:w-[60%]">
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className={cn("w-2 h-2 rounded-full", styles.dot)} />
-                        <span className={cn("text-[10px] font-bold uppercase tracking-widest opacity-60", styles.text)}>
-                            {post.categories[0] || 'MATHEMATICS'}
-                        </span>
+                {/* Left Area (60%): Title & Label */}
+                <div className="w-[60%] h-full p-6 sm:p-8 flex flex-col justify-center gap-2 z-10">
+                    <div className={cn(
+                        "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black tracking-[0.1em]",
+                        styles.accent,
+                        styles.text
+                    )}>
+                        {post.categories[0] || 'GENERAL'}
                     </div>
                     <h3 className={cn(
                         "font-black tracking-tight leading-[1.2] break-keep transition-all duration-300",
@@ -113,33 +145,22 @@ export function PostCard({ post, onClick, onLike, isAdmin, onEdit, onDelete }: P
                     )}>
                         {post.title || '수학 도구'}
                     </h3>
-                    <p className="text-xs text-gray-500 font-medium line-clamp-1 mt-1 opacity-70">
-                        {post.description || '선생님께 추천하는 도구'}
-                    </p>
                 </div>
 
-                {/* Right: Icon Area (40%) */}
-                <div className="w-full sm:w-[40%] bg-white/30 backdrop-blur-sm flex items-center justify-center p-6 relative">
+                {/* Right Area (40%): Icon Area */}
+                <div className="w-[40%] h-full flex items-center justify-center p-4 relative">
                     <motion.div 
-                        whileHover={{ rotate: 10, scale: 1.1 }}
+                        whileHover={{ scale: 1.15, rotate: 5 }}
                         className={cn(
-                            "w-16 h-16 sm:w-20 sm:h-20 rounded-[24px] shadow-2xl flex items-center justify-center text-4xl sm:text-5xl transition-transform",
+                            "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center shadow-[0_15px_40px_-5px_rgba(0,0,0,0.1)] transition-shadow",
                             styles.iconBg
                         )}
                     >
-                        {post.thumbnail && post.thumbnail.length < 10 ? (
-                            <span>{post.thumbnail}</span>
-                        ) : (
-                            <span className="text-white drop-shadow-lg">
-                                {post.categories[0]?.includes('도형') ? '📐' : 
-                                 post.categories[0]?.includes('수와') ? '📊' : 
-                                 post.categories[0]?.includes('자료') ? '📈' : '🧩'}
-                            </span>
-                        )}
+                        <styles.icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" strokeWidth={2.5} />
                     </motion.div>
                     
-                    {/* Infographic Detail */}
-                    <div className="absolute bottom-2 right-4 flex gap-1 opacity-20">
+                    {/* Infographic Graphic Detail */}
+                    <div className="absolute bottom-4 right-6 flex gap-1 opacity-20">
                         <div className="w-1 h-3 bg-black rounded-full" />
                         <div className="w-1 h-5 bg-black rounded-full" />
                         <div className="w-1 h-2 bg-black rounded-full" />
@@ -148,30 +169,36 @@ export function PostCard({ post, onClick, onLike, isAdmin, onEdit, onDelete }: P
             </div>
 
             {/* Bottom Info Bar */}
-            <div className="px-6 py-4 flex items-center justify-between bg-white">
-                <div className="flex gap-1">
-                    {post.grades.slice(0, 2).map((grade) => (
-                        <span key={grade} className="px-2 py-0.5 bg-gray-50 text-[10px] font-bold text-gray-400 rounded-md border border-gray-100">
-                            {grade}
-                        </span>
-                    ))}
-                    {post.grades.length > 2 && <span className="text-[10px] text-gray-300 self-center">...</span>}
-                </div>
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1.5 text-gray-400">
-                        <div className="w-1 h-1 rounded-full bg-gray-300" />
-                        <span className="text-[11px] font-bold">{post.view_count.toLocaleString()}</span>
+            <div className="px-6 py-5 flex flex-col gap-3 bg-white border-t border-gray-50">
+                <p className="text-xs text-gray-500 font-medium line-clamp-2 min-h-[32px] leading-relaxed">
+                    {post.description || '선생님과 학생이 함께 사용하는 수학 학습 도구입니다.'}
+                </p>
+                
+                <div className="flex items-center justify-between">
+                    <div className="flex gap-1.5">
+                        {post.grades.slice(0, 2).map((grade) => (
+                            <span key={grade} className="px-2 py-0.5 bg-gray-50 text-[10px] font-bold text-gray-400 rounded-md border border-gray-100">
+                                {grade}
+                            </span>
+                        ))}
                     </div>
-                    <button 
-                        onClick={handleLike}
-                        className={cn(
-                            "flex items-center gap-1.5 transition-all active:scale-75",
-                            liked ? "text-pink-500" : "text-gray-400"
-                        )}
-                    >
-                        <Heart className={cn("w-4 h-4", liked && "fill-current")} />
-                        <span className="text-[11px] font-bold">{likeCount}</span>
-                    </button>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1.5 text-gray-400">
+                            <Eye className="w-3.5 h-3.5" />
+                            <span className="text-[11px] font-bold">{post.view_count.toLocaleString()}</span>
+                        </div>
+                        <button 
+                            onClick={handleLike}
+                            className={cn(
+                                "flex items-center gap-1.5 transition-all active:scale-75",
+                                liked ? "text-pink-500" : "text-gray-400"
+                            )}
+                        >
+                            <Heart className={cn("w-3.5 h-3.5", liked && "fill-current")} />
+                            <span className="text-[11px] font-bold">{likeCount}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </motion.div>

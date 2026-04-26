@@ -8,15 +8,14 @@ export type Grade = '1학년' | '2학년' | '3학년' | '4학년' | '5학년' | 
 export interface Post {
   id: string;
   title: string;
-  content: string;
+  description: string;
   url: string;
-  domains: Domain[];
+  categories: Domain[];
   grades: Grade[];
-  thumbnail_url: string;
+  thumbnail: string;
   view_count: number;
   like_count: number;
   created_at: string;
-  author_id?: string;
 }
 
 // In-memory mock data
@@ -26,7 +25,7 @@ export const getPosts = async (filters?: { domain?: Domain | '전체', grade?: G
   if (!supabase) {
     let result = [...mockPosts];
     if (filters?.domain && filters.domain !== '전체') {
-      result = result.filter(p => p.domains.includes(filters.domain as Domain));
+      result = result.filter(p => p.categories.includes(filters.domain as Domain));
     }
     if (filters?.grade && filters.grade !== '전체') {
       result = result.filter(p => p.grades.includes(filters.grade as Grade));
@@ -34,10 +33,10 @@ export const getPosts = async (filters?: { domain?: Domain | '전체', grade?: G
     return result.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
 
-  let query = supabase.from('posts').select('*').order('created_at', { ascending: false });
+  let query = supabase.from('tools').select('*').order('created_at', { ascending: false });
   
   if (filters?.domain && filters.domain !== '전체') {
-    query = query.contains('domains', [filters.domain]);
+    query = query.contains('categories', [filters.domain]);
   }
   if (filters?.grade && filters.grade !== '전체') {
     query = query.contains('grades', [filters.grade]);
@@ -45,7 +44,7 @@ export const getPosts = async (filters?: { domain?: Domain | '전체', grade?: G
 
   const { data, error } = await query;
   if (error) {
-    console.error('Error fetching posts:', error);
+    console.error('Error fetching tools:', error);
     return [];
   }
   return data;
@@ -67,13 +66,13 @@ export const createPost = async (
   }
 
   const { data, error } = await supabase
-    .from('posts')
+    .from('tools')
     .insert([postData])
     .select()
     .single();
 
   if (error) {
-    console.error('Error creating post:', error);
+    console.error('Error creating tool:', error);
     throw new Error(error.message);
   }
   return data;
@@ -86,12 +85,9 @@ export const incrementView = async (postId: string): Promise<void> => {
     return;
   }
 
-  // Basic RPC or increment. For now we will invoke a simple update since we didn't add an RPC in SQL.
-  // Actually, without RPC, we have to read then write, which is subject to race conditions.
-  // We'll read first, then write.
-  const { data: post } = await supabase.from('posts').select('view_count').eq('id', postId).single();
+  const { data: post } = await supabase.from('tools').select('view_count').eq('id', postId).single();
   if (post) {
-      await supabase.from('posts').update({ view_count: post.view_count + 1 }).eq('id', postId);
+      await supabase.from('tools').update({ view_count: post.view_count + 1 }).eq('id', postId);
   }
 };
 
@@ -102,8 +98,8 @@ export const toggleLike = async (postId: string, liked: boolean): Promise<void> 
     return;
   }
 
-  const { data: post } = await supabase.from('posts').select('like_count').eq('id', postId).single();
+  const { data: post } = await supabase.from('tools').select('like_count').eq('id', postId).single();
   if (post) {
-      await supabase.from('posts').update({ like_count: post.like_count + (liked ? 1 : -1) }).eq('id', postId);
+      await supabase.from('tools').update({ like_count: post.like_count + (liked ? 1 : -1) }).eq('id', postId);
   }
 }

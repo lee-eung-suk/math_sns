@@ -25,7 +25,7 @@ export function PostDetailPage({ postId, onBack }: { postId: string; onBack: () 
         if (supabase) {
             const channel = supabase
               .channel(`post-${postId}`)
-              .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'posts', filter: `id=eq.${postId}` }, 
+              .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tools', filter: `id=eq.${postId}` }, 
                 (payload) => setPost(payload.new as Post))
               .subscribe();
             return () => {
@@ -70,9 +70,9 @@ export function PostDetailPage({ postId, onBack }: { postId: string; onBack: () 
             <div className="flex-1 overflow-y-auto pb-32 bg-[#FBFBFD]">
                 <div className="max-w-3xl mx-auto w-full md:pt-8 md:px-8">
                     <div className="bg-white md:rounded-3xl card-border overflow-hidden shadow-sm">
-                        {post.thumbnail_url && (
+                        {post.thumbnail && (
                             <div className="w-full aspect-video min-h-[250px] bg-gray-100 border-b border-[#E5E5EA]">
-                                <img src={post.thumbnail_url} alt="thumbnail" className="w-full h-full object-cover" />
+                                <img src={post.thumbnail} alt="thumbnail" className="w-full h-full object-cover" />
                             </div>
                         )}
 
@@ -80,7 +80,7 @@ export function PostDetailPage({ postId, onBack }: { postId: string; onBack: () 
                             <div className="space-y-4">
                                 <div className="flex flex-wrap gap-2">
                                     {post.grades.map(g => <TagBadge key={g} tag={g} className="text-[12px] py-1 px-3" />)}
-                                    {post.domains.map(d => <TagBadge key={d} tag={d} className="text-[12px] py-1 px-3" />)}
+                                    {post.categories.map(d => <TagBadge key={d} tag={d} className="text-[12px] py-1 px-3" />)}
                                 </div>
                                 <h1 className="text-3xl font-bold text-[#1C1C1E] leading-tight tracking-tight">
                                     {post.title}
@@ -98,7 +98,7 @@ export function PostDetailPage({ postId, onBack }: { postId: string; onBack: () 
                             <div className="space-y-4 pt-4 border-t border-gray-50">
                                 <h3 className="text-sm font-bold text-gray-400">도구 설명</h3>
                                 <div className="text-lg leading-relaxed text-gray-700 whitespace-pre-wrap font-medium">
-                                    {post.content}
+                                    {post.description}
                                 </div>
                             </div>
                         </div>

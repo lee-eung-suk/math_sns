@@ -5,11 +5,11 @@ import { Link as LinkIcon, Sparkles, X, Check } from 'lucide-react';
 
 export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; onCancel?: () => void }) {
     const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
+    const [description, setDescription] = useState('');
     const [url, setUrl] = useState('');
-    const [selectedDomains, setSelectedDomains] = useState<Domain[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<Domain[]>([]);
     const [selectedGrades, setSelectedGrades] = useState<Grade[]>([]);
-    const [thumbnailUrl, setThumbnailUrl] = useState('');
+    const [thumbnail, setThumbnail] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     
@@ -17,7 +17,7 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
     const GRADES: Grade[] = ['1학년', '2학년', '3학년', '4학년', '5학년', '6학년', '공통'];
 
     const toggleDomain = (d: Domain) => {
-        setSelectedDomains(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d]);
+        setSelectedCategories(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d]);
     };
 
     const toggleGrade = (g: Grade) => {
@@ -42,7 +42,7 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
                 ['#FFFBEB', '#FEF3C7']  // Amber
             ];
             
-            const domain = selectedDomains[0] || '기타';
+            const domain = selectedCategories[0] || '기타';
             let gradients = bgColors[0]; 
             let emoji = '🔢';
             let accentColor = '#3B82F6';
@@ -57,65 +57,23 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
             ctx.fillStyle = grd;
             ctx.fillRect(0, 0, 600, 400);
 
-            // Draw decorative element (soft colored circle behind emoji)
+            // Draw decorative element (soft colored circle behind emoji to add depth)
             ctx.beginPath();
-            ctx.arc(300, 100, 60, 0, 2 * Math.PI);
-            ctx.fillStyle = accentColor + '20'; // 20 hex opacity
+            ctx.arc(300, 200, 120, 0, 2 * Math.PI);
+            ctx.fillStyle = accentColor + '10'; // Soft accent
             ctx.fill();
 
-            // Emoji
-            ctx.font = '64px sans-serif';
+            // Large Iconic Emoji in center
+            ctx.font = '160px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(emoji, 300, 105);
-
-            // Title
-            ctx.font = 'bold 56px "Pretendard", "Noto Sans KR", sans-serif';
-            ctx.fillStyle = '#111827';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.05)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetY = 4;
-            
-            const displayTitle = title.trim() || url.replace(/^https?:\/\//, '').split('/')[0] || '수업 도구';
-            const words = displayTitle.split(' ');
-            let line = '';
-            let y = 240;
-            const lines = [];
-            
-            // Calculate lines
-            ctx.shadowColor = 'transparent'; // Turn off shadow just for measuring
-            for(let n = 0; n < words.length; n++) {
-                let testLine = line + words[n] + ' ';
-                let testWidth = ctx.measureText(testLine).width;
-                if (testWidth > 520 && n > 0) {
-                    lines.push(line.trim());
-                    line = words[n] + ' ';
-                } else {
-                    line = testLine;
-                }
-            }
-            lines.push(line.trim());
-
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.08)'; // Turn on shadow for drawing
-            
-            // Limit to 2 lines
-            const linesToDraw = lines.slice(0, 2);
-            // If it was more than 2, add ellipsis
-            if (lines.length > 2) {
-                linesToDraw[1] = linesToDraw[1] + '...';
-            }
-
-            // Adjust starting Y to center text block
-            const lineHeight = 70;
-            const textBlockHeight = linesToDraw.length * lineHeight;
-            let startY = 250 - (textBlockHeight / 4);
-
-            linesToDraw.forEach((l, i) => {
-                ctx.fillText(l, 300, startY + (i * lineHeight));
-            });
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.04)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetY = 10;
+            ctx.fillText(emoji, 300, 200);
 
             const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-            setThumbnailUrl(dataUrl);
+            setThumbnail(dataUrl);
 
             // Supabase object storage uploading is failing or not needed immediately 
             // since we can just use the Data URL directly for the DB in a real MVP,
@@ -128,12 +86,12 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
                 const { error } = await supabase.storage.from('thumbnails').upload(fileName, blob);
                 if (!error) {
                     const { data } = supabase.storage.from('thumbnails').getPublicUrl(fileName);
-                    setThumbnailUrl(data.publicUrl);
+                    setThumbnail(data.publicUrl);
                 }
             }
         } catch(error) {
             console.error('Thumbnail generation failed', error);
-            setThumbnailUrl('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400');
+            setThumbnail('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400');
         } finally {
             setIsGenerating(false);
         }
@@ -146,17 +104,17 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
         if (url.includes('geogebra')) {
             newTitle = title || '지오지브라 수업 도구';
             setTitle(newTitle);
-            if(!content) setContent('인터랙티브 기하/수학 학습 도구입니다.');
+            if(!description) setDescription('인터랙티브 기하/수학 학습 도구입니다.');
         } else if (url.includes('desmos')) {
             newTitle = title || '데스모스 공학용 계산기';
             setTitle(newTitle);
-            if(!content) setContent('수식 입력과 그래프 생성이 편리한 웹 도구입니다.');
+            if(!description) setDescription('수식 입력과 그래프 생성이 편리한 웹 도구입니다.');
         } else if (!title) {
             newTitle = url.replace(/^https?:\/\//, '').split('/')[0];
             setTitle(newTitle);
         }
         
-        if (!thumbnailUrl) {
+        if (!thumbnail) {
             // Give it a tiny delay to ensure state updates
             setTimeout(generateThumbnail, 100);
         }
@@ -168,13 +126,14 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
         try {
             await createPost({
                 title: title.trim() || url.replace(/^https?:\/\//, '').split('/')[0] || '유용한 수업 도구',
-                content: content.trim() || '',
+                description: description.trim() || '',
                 url: url.trim(),
-                domains: selectedDomains.length > 0 ? selectedDomains : ['기타'],
+                categories: selectedCategories.length > 0 ? selectedCategories : ['기타'],
                 grades: selectedGrades.length > 0 ? selectedGrades : ['공통'],
-                thumbnail_url: thumbnailUrl || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400'
+                thumbnail: thumbnail || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400'
             });
             playUploadSound();
+            alert('도구가 성공적으로 저장되었습니다!');
             onSuccess();
         } catch(error: any) {
             console.error(error);
@@ -230,9 +189,9 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
                             <label className="text-sm font-bold text-gray-500 ml-1">간단 설명</label>
                             <textarea 
                                 placeholder="선생님들께 이 도구의 활용팁을 알려주세요 (최대 280자)"
-                                value={content}
+                                value={description}
                                 maxLength={280}
-                                onChange={(e) => setContent(e.target.value)}
+                                onChange={(e) => setDescription(e.target.value)}
                                 className="w-full bg-gray-50 border border-[#E5E5EA] rounded-2xl p-4 text-lg resize-none min-h-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
@@ -249,7 +208,7 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
                                         onClick={() => toggleDomain(d)}
                                         className={cn(
                                             "px-3 py-1.5 rounded-lg text-sm font-semibold transition-all border",
-                                            selectedDomains.includes(d) ? "bg-black text-white border-black" : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                                            selectedCategories.includes(d) ? "bg-black text-white border-black" : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
                                         )}
                                     >
                                         {d}
@@ -279,9 +238,9 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
                     {/* Thumbnail */}
                     <div className="space-y-3">
                         <label className="text-sm font-bold text-gray-500 ml-1">썸네일 이미지</label>
-                        {thumbnailUrl ? (
+                        {thumbnail ? (
                             <div className="relative rounded-2xl overflow-hidden border border-[#E5E5EA] shadow-inner group">
-                                <img src={thumbnailUrl} alt="Thumbnail Prep" className="w-full aspect-video object-cover" />
+                                <img src={thumbnail} alt="Thumbnail Prep" className="w-full aspect-video object-cover" />
                                 <button 
                                     onClick={generateThumbnail}
                                     className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-black/80 transition-all opacity-0 group-hover:opacity-100"

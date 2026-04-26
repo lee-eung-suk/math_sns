@@ -59,8 +59,8 @@ export function FeedPage({ onPostClick, isSearchMode }: { onPostClick: (id: stri
         if (supabase) {
             const channel = supabase
               .channel('schema-db-changes')
-              .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'posts' }, () => fetchPosts())
-              .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, () => fetchPosts())
+              .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tools' }, () => fetchPosts())
+              .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tools' }, () => fetchPosts())
               .subscribe();
             
             return () => {
@@ -98,8 +98,8 @@ export function FeedPage({ onPostClick, isSearchMode }: { onPostClick: (id: stri
         const q = debouncedQuery.toLowerCase();
         return posts.filter(p => 
             p.title.toLowerCase().includes(q) || 
-            (p.content && p.content.toLowerCase().includes(q)) ||
-            p.domains.some(d => d.toLowerCase().includes(q)) ||
+            (p.description && p.description.toLowerCase().includes(q)) ||
+            p.categories.some(d => d.toLowerCase().includes(q)) ||
             p.grades.some(g => g.toLowerCase().includes(q))
         );
     }, [posts, debouncedQuery]);
@@ -205,15 +205,15 @@ export function FeedPage({ onPostClick, isSearchMode }: { onPostClick: (id: stri
             </div>
 
             {/* Feed List */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-8" onClick={() => setShowRecent(false)}>
+            <div className="flex-1 overflow-y-auto p-6 md:p-12" onClick={() => setShowRecent(false)}>
                 {isLoading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-30 max-w-[1200px] mx-auto">
-                        {[1, 2, 3, 4, 5, 6].map(i => (
-                            <div key={i} className="bg-white rounded-[20px] h-[360px] animate-pulse border border-gray-100" />
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12 opacity-30 max-w-[1400px] mx-auto">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                            <div key={i} className="aspect-[4/5] bg-white rounded-[32px] animate-pulse border border-gray-50" />
                         ))}
                     </div>
                 ) : filteredPosts.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12 max-w-[1400px] mx-auto">
                         {filteredPosts.map(post => (
                             <PostCard key={post.id} post={post} onClick={onPostClick} />
                         ))}

@@ -47,7 +47,7 @@ const getCategoryStyles = (categories: string[]) => {
     };
 };
 
-export function PostCard({ post, onClick, onLike, isAdmin, onEdit, onDelete }: PostCardProps) {
+export const PostCard: React.FC<PostCardProps> = ({ post, onClick, onLike, isAdmin, onEdit, onDelete }) => {
     const [liked, setLiked] = React.useState(false);
     const [likeCount, setLikeCount] = React.useState(post.like_count);
 

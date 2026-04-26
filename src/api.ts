@@ -22,7 +22,7 @@ export interface Post {
 let mockPosts: Post[] = [];
 
 export const getPosts = async (filters?: { domain?: Domain | '전체', grade?: Grade | '전체' }): Promise<Post[]> => {
-  if (!supabase) {
+  const getMockResult = () => {
     let result = [...mockPosts];
     if (filters?.domain && filters.domain !== '전체') {
       result = result.filter(p => p.categories.includes(filters.domain as Domain));
@@ -31,29 +31,38 @@ export const getPosts = async (filters?: { domain?: Domain | '전체', grade?: G
       result = result.filter(p => p.grades.includes(filters.grade as Grade));
     }
     return result.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  };
+
+  if (!supabase) {
+    return getMockResult();
   }
 
-  let query = supabase.from('tools').select('*').order('created_at', { ascending: false });
-  
-  if (filters?.domain && filters.domain !== '전체') {
-    query = query.contains('categories', [filters.domain]);
-  }
-  if (filters?.grade && filters.grade !== '전체') {
-    query = query.contains('grades', [filters.grade]);
-  }
+  try {
+    let query = supabase.from('tools').select('*').order('created_at', { ascending: false });
+    
+    if (filters?.domain && filters.domain !== '전체') {
+      query = query.contains('categories', [filters.domain]);
+    }
+    if (filters?.grade && filters.grade !== '전체') {
+      query = query.contains('grades', [filters.grade]);
+    }
 
-  const { data, error } = await query;
-  if (error) {
-    console.error('Error fetching tools:', error);
-    return [];
+    const { data, error } = await query;
+    if (error) {
+      console.error('Error fetching tools:', error);
+      return getMockResult();
+    }
+    return data || [];
+  } catch (e) {
+    console.error('Network error fetching tools, falling back to mock:', e);
+    return getMockResult();
   }
-  return data;
 };
 
 export const createPost = async (
   postData: Omit<Post, 'id' | 'view_count' | 'like_count' | 'created_at'>
 ): Promise<Post | null> => {
-  if (!supabase) {
+  const saveMock = () => {
     const newPost: Post = {
       ...postData,
       id: Math.random().toString(36).substring(7),
@@ -63,85 +72,149 @@ export const createPost = async (
     };
     mockPosts = [newPost, ...mockPosts];
     return newPost;
+  };
+
+  if (!supabase) {
+    return saveMock();
   }
 
-  const { data, error, status, statusText } = await supabase
-    .from('tools')
-    .insert([postData])
-    .select()
-    .single();
+  try {
+    const { data, error, status, statusText } = await supabase
+      .from('tools')
+      .insert([postData])
+      .select()
+      .single();
 
-  if (error) {
-    console.error('Supabase Error Details:', {
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-      code: error.code,
-      status,
-      statusText
-    });
-    throw new Error(`${error.message} (Code: ${error.code})`);
+    if (error) {
+      console.error('Supabase Error Details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        status,
+        statusText
+      });
+      // If it's a structural error, we probably shouldn't mock-save silently, 
+      // but "Failed to fetch" is a connectivity issue.
+      if (error.message.includes('fetch')) return saveMock();
+      throw new Error(`${error.message} (Code: ${error.code})`);
+    }
+    return data;
+  } catch (e: any) {
+    if (e.message?.includes('fetch')) {
+      return saveMock();
+    }
+    throw e;
   }
-  return data;
 };
 
 export const incrementView = async (postId: string): Promise<void> => {
-  if (!supabase) {
+  const mockIncrement = () => {
     const post = mockPosts.find(p => p.id === postId);
     if (post) post.view_count += 1;
+  };
+
+  if (!supabase) {
+    mockIncrement();
     return;
   }
 
-  const { data: post } = await supabase.from('tools').select('view_count').eq('id', postId).single();
-  if (post) {
-      await supabase.from('tools').update({ view_count: post.view_count + 1 }).eq('id', postId);
+  try {
+    const { data: post, error: fetchError } = await supabase.from('tools').select('view_count').eq('id', postId).single();
+    if (fetchError) throw fetchError;
+    if (post) {
+        await supabase.from('tools').update({ view_count: post.view_count + 1 }).eq('id', postId);
+    }
+  } catch (e: any) {
+    console.error('Error incrementing view:', e);
+    if (e.message?.includes('fetch')) mockIncrement();
   }
 };
 
 export const toggleLike = async (postId: string, liked: boolean): Promise<void> => {
-  if (!supabase) {
+  const mockToggle = () => {
     const post = mockPosts.find(p => p.id === postId);
     if (post) post.like_count += liked ? 1 : -1;
+  };
+
+  if (!supabase) {
+    mockToggle();
     return;
   }
 
-  const { data: post } = await supabase.from('tools').select('like_count').eq('id', postId).single();
-  if (post) {
-      await supabase.from('tools').update({ like_count: post.like_count + (liked ? 1 : -1) }).eq('id', postId);
+  try {
+    const { data: post, error: fetchError } = await supabase.from('tools').select('like_count').eq('id', postId).single();
+    if (fetchError) throw fetchError;
+    if (post) {
+        await supabase.from('tools').update({ like_count: post.like_count + (liked ? 1 : -1) }).eq('id', postId);
+    }
+  } catch (e: any) {
+    console.error('Error toggling like:', e);
+    if (e.message?.includes('fetch')) mockToggle();
   }
 }
 
 export const updatePost = async (postId: string, postData: Partial<Omit<Post, 'id' | 'created_at'>>) => {
-  if (!supabase) {
+  const mockUpdate = () => {
     const index = mockPosts.findIndex(p => p.id === postId);
     if (index !== -1) {
       mockPosts[index] = { ...mockPosts[index], ...postData };
       return mockPosts[index];
     }
     return null;
+  };
+
+  if (!supabase) {
+    return mockUpdate();
   }
 
-  const { data, error } = await supabase
-    .from('tools')
-    .update(postData)
-    .eq('id', postId)
-    .select()
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('tools')
+      .update(postData)
+      .eq('id', postId)
+      .select()
+      .single();
 
-  if (error) throw new Error(error.message);
-  return data;
+    if (error) {
+       if (error.message.includes('fetch')) return mockUpdate();
+       throw new Error(error.message);
+    }
+    return data;
+  } catch (e: any) {
+    if (e.message?.includes('fetch')) return mockUpdate();
+    throw e;
+  }
 };
 
 export const deletePost = async (postId: string) => {
-  if (!supabase) {
+  const mockDelete = () => {
     mockPosts = mockPosts.filter(p => p.id !== postId);
+  };
+
+  if (!supabase) {
+    mockDelete();
     return;
   }
 
-  const { error } = await supabase
-    .from('tools')
-    .delete()
-    .eq('id', postId);
+  try {
+    const { error } = await supabase
+      .from('tools')
+      .delete()
+      .eq('id', postId);
 
-  if (error) throw new Error(error.message);
+    if (error) {
+      if (error.message.includes('fetch')) {
+        mockDelete();
+        return;
+      }
+      throw new Error(error.message);
+    }
+  } catch (e: any) {
+    if (e.message?.includes('fetch')) {
+      mockDelete();
+      return;
+    }
+    throw e;
+  }
 };

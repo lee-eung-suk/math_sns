@@ -219,13 +219,17 @@ export function FeedPage({
             {/* Feed List */}
             <div className="flex-1 overflow-y-auto p-6 md:p-12" onClick={() => setShowRecent(false)}>
                 {isLoading ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12 opacity-30 max-w-[1400px] mx-auto">
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                            <div key={i} className="aspect-[4/5] bg-white rounded-[32px] animate-pulse border border-gray-50" />
+                    <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full opacity-30">
+                        {[1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} className="h-20 bg-white rounded-2xl animate-pulse border border-gray-50" />
                         ))}
                     </div>
                 ) : filteredPosts.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12 max-w-[1400px] mx-auto">
+                    <div className="flex flex-col gap-3 max-w-3xl mx-auto w-full pb-20">
+                        <div className="flex items-center justify-between px-2 mb-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            <span>수업 도구 보관함</span>
+                            <span>{filteredPosts.length} ITEMS</span>
+                        </div>
                         {filteredPosts.map(post => (
                             <PostCard 
                                 key={post.id} 

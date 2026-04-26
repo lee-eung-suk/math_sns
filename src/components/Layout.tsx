@@ -35,15 +35,15 @@ export function Layout({ children, currentTab, isAdmin, onLoginClick, onLogoutCl
     ];
 
     return (
-        <div className="min-h-screen bg-white text-[#1C1C1E] font-sans flex flex-col md:flex-row">
+        <div className="min-h-screen bg-white text-[#1C1C1E] font-sans flex flex-col lg:flex-row">
             {/* Desktop Sidebar */}
-            <aside className="hidden md:flex flex-col w-64 border-r border-[#E5E5EA] p-6 fixed h-full bg-white z-10 space-y-8">
+            <aside className="hidden lg:flex flex-col w-64 border-r border-[#E5E5EA] p-6 fixed h-full bg-white z-10 space-y-8">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                         <BookOpen className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-black tracking-tight leading-none text-gray-900">초등 수(數)다방</h1>
+                        <h1 className="text-xl font-black tracking-tight leading-none text-gray-900">수다방</h1>
                         <p className="text-[11px] font-bold text-gray-500 mt-1">수학 수업 도구 모음</p>
                     </div>
                 </div>
@@ -91,28 +91,28 @@ export function Layout({ children, currentTab, isAdmin, onLoginClick, onLogoutCl
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 md:ml-64 pb-20 md:pb-0 min-h-screen border-r border-transparent lg:border-[#E5E5EA] max-w-[800px] w-full bg-[#FBFBFD]">
+            <main className="flex-1 lg:ml-64 pb-24 lg:pb-0 min-h-screen border-r border-transparent lg:border-[#E5E5EA] w-full min-w-0 bg-[#FBFBFD] relative flex justify-center">
                 {children}
             </main>
 
-            {/* Right empty space for ultra-wide, to keep 2-column look balanced */}
-            <div className="hidden lg:block flex-1 max-w-[350px] p-6 bg-white">
-                 {/* Can put trending subjects here in the future */}
+            {/* Right empty space for desktop */}
+            <div className="hidden xl:block flex-1 p-6 bg-white shrink-0">
+                 {/* Empty space or future widgets */}
             </div>
 
             {/* Mobile Bottom Tab Bar */}
-            <nav className="md:hidden fixed bottom-0 w-full bg-white/80 backdrop-blur-md border-t border-[#E5E5EA] flex justify-around p-2 pb-safe z-50">
+            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-[#E5E5EA] flex justify-around p-2 pb-[env(safe-area-inset-bottom)] z-50 h-[64px] sm:h-[72px]">
                 {navItems.map(item => (
                     <button
                         key={item.id}
                         onClick={() => handleTabClick(item.id)}
                         className={cn(
-                            "flex flex-col items-center gap-1 p-2 w-16 transition-colors",
-                            currentTab === item.id ? "text-black" : "text-gray-400"
+                            "flex flex-col items-center justify-center gap-1 flex-1 transition-colors min-h-[44px]",
+                            currentTab === item.id ? "text-blue-600" : "text-gray-400"
                         )}
                     >
                         <item.icon className="w-6 h-6" strokeWidth={currentTab === item.id ? 2.5 : 2} />
-                        <span className="text-[10px] font-medium">{item.label}</span>
+                        <span className="text-[10px] font-black tracking-tight">{item.label}</span>
                     </button>
                 ))}
             </nav>

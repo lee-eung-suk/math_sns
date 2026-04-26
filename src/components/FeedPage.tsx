@@ -117,150 +117,119 @@ export function FeedPage({
     }, [posts, debouncedQuery]);
 
     return (
-        <div className="flex flex-col h-full bg-[#FBFBFD]">
-            {/* Nav & Filters */}
-            <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-[#E5E5EA] z-20 pt-safe shadow-sm">
-                <div className="px-5 py-4 flex flex-col gap-4">
-                    <div className="md:hidden flex items-center justify-center">
-                        <span className="text-xl font-black text-gray-900 tracking-tight">초등 수(數)다방</span>
+        <div className="flex flex-col h-full bg-[#FBFBFD] overflow-hidden">
+            {/* Header & Sticky Filters */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-[#E5E5EA] z-20 pt-safe">
+                <div className="px-4 py-4 flex flex-col gap-3">
+                    <div className="md:hidden flex items-center justify-between">
+                        <span className="text-xl font-black text-gray-900 tracking-tight">수다방</span>
+                        {isSearchMode && (
+                            <button onClick={() => setSearchQuery('')} className="p-2 text-gray-400">
+                                <SearchIcon className="w-5 h-5" />
+                            </button>
+                        )}
                     </div>
 
-                    {/* Search Bar */}
-                    {(isSearchMode || debouncedQuery || searchQuery) && (
-                        <div className="relative z-30">
-                            <form onSubmit={handleSearchSubmit} className="relative flex items-center">
-                                <SearchIcon className="absolute left-4 w-5 h-5 text-gray-400" />
-                                <input
-                                    ref={searchInputRef}
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    onFocus={() => setShowRecent(true)}
-                                    placeholder="수업 도구 검색 (예: 분수, 각도, 그래프)"
-                                    className="w-full bg-gray-100 rounded-2xl py-3 pl-11 pr-10 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-transparent focus:bg-white"
-                                />
-                                {searchQuery && (
-                                    <button 
-                                        type="button" 
-                                        onClick={() => setSearchQuery('')}
-                                        className="absolute right-3 p-1 text-gray-400 hover:text-gray-600 rounded-full"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </button>
-                                )}
-                            </form>
-                            
-                            {/* Recent Searches Dropdown */}
-                            {showRecent && recentSearches.length > 0 && (
-                                <>
-                                    <div className="fixed inset-0 top-[180px] z-20 bg-black/5" onClick={() => setShowRecent(false)} />
-                                    <div className="absolute top-14 left-0 w-full bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-30">
-                                        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-500">
-                                            최근 검색어
-                                        </div>
-                                        <ul className="max-h-60 overflow-y-auto">
-                                            {recentSearches.map(q => (
-                                                <li key={q} className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0" onClick={() => handleRecentClick(q)}>
-                                                    <span className="text-[15px] text-gray-700 font-medium">{q}</span>
-                                                    <button onClick={(e) => removeRecent(e, q)} className="p-2 text-gray-300 hover:text-gray-500">
-                                                        <X className="w-4 h-4" />
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </>
-                            )}
+                    {/* Search Bar (Conditional) */}
+                    {(isSearchMode || searchQuery) && (
+                        <div className="relative">
+                            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                                ref={searchInputRef}
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onFocus={() => setShowRecent(true)}
+                                placeholder="도구 검색..."
+                                className="w-full bg-gray-100 rounded-2xl py-3 pl-11 pr-10 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-transparent focus:bg-white"
+                            />
                         </div>
                     )}
 
-                    {/* Grade Filter */}
-                    <div className="flex overflow-x-auto hide-scrollbar gap-2">
-                        {GRADES.map(g => (
-                            <button
-                                key={g}
-                                onClick={() => setGradeFilter(g)}
-                                className={cn(
-                                    "whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all border",
-                                    gradeFilter === g 
-                                        ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200" 
-                                        : g === '전체' && gradeFilter === '전체'
-                                            ? "bg-gray-800 text-white border-gray-800"
-                                            : "bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:bg-gray-50"
-                                )}
-                            >
-                                {g}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Domain Filter */}
-                    <div className="flex overflow-x-auto hide-scrollbar gap-2 pt-2">
-                        {DOMAINS.map(d => (
-                            <button
-                                key={d}
-                                onClick={() => setDomainFilter(d)}
-                                className={cn(
-                                    "whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all border",
-                                    domainFilter === d 
-                                        ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200" 
-                                        : d === '전체' && domainFilter === '전체'
-                                            ? "bg-gray-800 text-white border-gray-800"
-                                            : "bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:bg-gray-50"
-                                )}
-                            >
-                                {d}
-                            </button>
-                        ))}
+                    {/* Filters (Wrap on Mobile) */}
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                            {GRADES.map(g => (
+                                <button
+                                    key={g}
+                                    onClick={() => setGradeFilter(g)}
+                                    className={cn(
+                                        "whitespace-nowrap px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full font-black transition-all border shrink-0",
+                                        "text-[11px] sm:text-xs", // clamp(11px, 3vw, 14px) style manual implementation via tailwind
+                                        gradeFilter === g 
+                                            ? "bg-gray-900 text-white border-gray-900 shadow-lg shadow-gray-200" 
+                                            : "bg-white text-gray-500 border-gray-100 hover:border-gray-300"
+                                    )}
+                                >
+                                    {g}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                            {DOMAINS.map(d => (
+                                <button
+                                    key={d}
+                                    onClick={() => setDomainFilter(d)}
+                                    className={cn(
+                                        "whitespace-nowrap px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full font-black transition-all border shrink-0",
+                                        "text-[11px] sm:text-xs",
+                                        domainFilter === d 
+                                            ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100" 
+                                            : "bg-white text-gray-500 border-gray-100 hover:border-gray-300"
+                                    )}
+                                >
+                                    {d}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Feed List */}
-            <div className="flex-1 overflow-y-auto p-6 md:p-12" onClick={() => setShowRecent(false)}>
-                {isLoading ? (
-                    <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full opacity-30">
-                        {[1, 2, 3, 4, 5, 6].map(i => (
-                            <div key={i} className="h-20 bg-white rounded-2xl animate-pulse border border-gray-50" />
-                        ))}
-                    </div>
-                ) : filteredPosts.length > 0 ? (
-                    <div className="flex flex-col gap-3 max-w-3xl mx-auto w-full pb-20">
-                        <div className="flex items-center justify-between px-2 mb-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                            <span>수업 도구 보관함</span>
-                            <span>{filteredPosts.length} ITEMS</span>
+            {/* Content Area */}
+            <div className="flex-1 overflow-y-auto" onClick={() => setShowRecent(false)}>
+                <div className="px-4 py-6 w-full box-border">
+                    {isLoading ? (
+                        <div className="flex flex-col gap-3">
+                            {[1, 2, 3, 4, 5, 6].map(i => (
+                                <div key={i} className="h-[88px] bg-white rounded-2xl animate-pulse border border-gray-50" />
+                            ))}
                         </div>
-                        {filteredPosts.map(post => (
-                            <PostCard 
-                                key={post.id} 
-                                post={post} 
-                                onClick={onPostClick} 
-                                isAdmin={isAdmin}
-                                onEdit={onEdit}
-                                onDelete={onDelete}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center h-[50vh] text-center px-4">
-                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                            <span className="text-3xl">{debouncedQuery ? '🔍' : '📭'}</span>
+                    ) : filteredPosts.length > 0 ? (
+                        <div className="flex flex-col gap-3 w-full">
+                            <div className="flex items-center justify-between px-1 mb-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                <span>{domainFilter} • {gradeFilter}</span>
+                                <span>{filteredPosts.length}개 항목</span>
+                            </div>
+                            {filteredPosts.map(post => (
+                                <PostCard 
+                                    key={post.id} 
+                                    post={post} 
+                                    onClick={onPostClick} 
+                                    isAdmin={isAdmin}
+                                    onEdit={onEdit}
+                                    onDelete={onDelete}
+                                />
+                            ))}
+                            <div className="h-28" /> {/* Spacer for FAB/Nav */}
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                            {debouncedQuery ? "검색 결과가 없습니다" : "아직 등록된 수업 도구가 없습니다"}
-                        </h3>
-                        <p className="text-gray-500 mb-8 max-w-sm">
-                            {debouncedQuery 
-                                ? "다른 키워드로 검색하거나 필터를 변경해보세요."
-                                : "오른쪽 아래 + 버튼을 눌러 첫 번째 도구를 공유해보세요!"}
-                        </p>
-                    </div>
-                )}
+                    ) : (
+                        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-280px)] text-center px-6">
+                            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
+                                <span className="text-3xl">📭</span>
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-1">아직 등록된 도구 없음</h3>
+                            <p className="text-gray-400 text-sm mb-6 max-w-[200px] leading-relaxed mx-auto">
+                                새로운 도구를 첫 번째로 등록해보세요!
+                            </p>
+                        </div>
+                    )}
+                </div>
             </div>
             
             <style dangerouslySetInnerHTML={{__html:`
-                .hide-scrollbar::-webkit-scrollbar { display: none; }
-                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                .no-scrollbar::-webkit-scrollbar { display: none; }
+                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}} />
         </div>
     );

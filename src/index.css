@@ -6,6 +6,26 @@
   --font-display: "SF Pro Display", "Inter", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
 }
 
+*, ::before, ::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: #FFFFFF;

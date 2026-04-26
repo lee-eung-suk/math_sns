@@ -81,39 +81,38 @@ export default function App() {
   };
 
   return (
-    <div className="bg-white flex justify-center min-h-screen relative">
-      <div className="w-full max-w-7xl mx-auto flex">
-        <Layout 
-          currentTab={currentTab} 
-          isAdmin={isAdmin}
-          onLoginClick={() => setIsLoginModalOpen(true)}
-          onLogoutClick={handleLogout}
-          onChangeTab={(tab) => { 
-            if(tab === 'write') {
-              setEditingPost(null);
-              setIsUploadModalOpen(true);
-            } else {
-              setCurrentTab(tab); 
-              setCurrentPostId(null); 
-            }
-          }}>
-          <div className="h-full relative overflow-x-hidden flex-1 flex flex-col w-full">
-            {(currentTab === 'home' || currentTab === 'search') && (
-              <FeedPage 
-                onPostClick={handlePostClick} 
-                isSearchMode={currentTab === 'search'} 
-                isAdmin={isAdmin}
-                onEdit={handleEditPost}
-                onDelete={handleDeletePost}
-              />
-            )}
+    <div className="bg-white min-h-screen w-full relative">
+      <Layout 
+        currentTab={currentTab} 
+        isAdmin={isAdmin}
+        onLoginClick={() => setIsLoginModalOpen(true)}
+        onLogoutClick={handleLogout}
+        onChangeTab={(tab) => { 
+          if(tab === 'write') {
+            setEditingPost(null);
+            setIsUploadModalOpen(true);
+          } else {
+            setCurrentTab(tab); 
+            setCurrentPostId(null); 
+          }
+        }}>
+        <div className="flex-1 w-full max-w-[640px] flex flex-col min-h-screen relative">
+          {(currentTab === 'home' || currentTab === 'search') && (
+            <FeedPage 
+              onPostClick={handlePostClick} 
+              isSearchMode={currentTab === 'search'} 
+              isAdmin={isAdmin}
+              onEdit={handleEditPost}
+              onDelete={handleDeletePost}
+            />
+          )}
 
-            {/* Post Detail Overlay */}
-            <AnimatePresence>
-                {currentPostId && (
-                  <PostDetailPage key="detail" postId={currentPostId} onBack={handleBack} />
-                )}
-            </AnimatePresence>
+          {/* Post Detail Overlay */}
+          <AnimatePresence>
+              {currentPostId && (
+                <PostDetailPage key="detail" postId={currentPostId} onBack={handleBack} />
+              )}
+          </AnimatePresence>
 
             {/* Upload Modal Overlay */}
             <AnimatePresence>
@@ -124,7 +123,7 @@ export default function App() {
                     exit={{ opacity: 0, y: 100 }}
                     className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-0 md:p-6"
                   >
-                    <div className="w-full max-w-2xl h-full md:h-auto md:max-h-[85vh] bg-white md:rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+                    <div className="w-full max-w-[640px] h-full md:h-auto md:max-h-[85vh] bg-white md:rounded-3xl shadow-2xl overflow-hidden flex flex-col">
                       <PostWritePage 
                         initialData={editingPost || undefined}
                         onSuccess={handleWriteSuccess} 
@@ -139,9 +138,8 @@ export default function App() {
             </AnimatePresence>
           </div>
         </Layout>
-      </div>
 
-      <AnimatePresence>
+        <AnimatePresence>
         {isLoginModalOpen && (
           <motion.div 
             initial={{ opacity: 0 }}
@@ -195,17 +193,16 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Floating Action Button */}
       <motion.button
-        animate={{ scale: [1, 1.1, 1], boxShadow: ["0px 0px 0px rgba(37,99,235,0)", "0px 0px 30px rgba(37,99,235,0.6)", "0px 0px 0px rgba(37,99,235,0)"] }}
-        transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut", repeatDelay: 1 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        animate={{ scale: [1, 1.05, 1] }}
+        transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => {
           setEditingPost(null);
           setIsUploadModalOpen(true);
         }}
-        className="fixed bottom-24 right-6 md:bottom-10 md:right-12 z-50 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl shadow-blue-500/50 hover:bg-blue-700 transition-colors"
+        className="fixed bottom-[80px] right-4 lg:bottom-10 lg:right-12 z-[50] w-14 h-14 lg:w-16 lg:h-16 bg-[#1C1C1E] text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-black transition-all"
       >
         <Plus className="w-8 h-8" />
       </motion.button>

@@ -85,7 +85,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onClick, onLike, isAdm
             whileHover={{ x: 4, backgroundColor: '#F9FAFB' }}
             whileTap={{ scale: 0.99 }}
             onClick={() => onClick(post.id)}
-            className="group bg-white rounded-2xl border border-gray-100 p-4 transition-all duration-300 cursor-pointer flex items-center gap-4 h-[88px] relative max-w-2xl mx-auto w-full"
+            className="group bg-white rounded-2xl border border-gray-100 p-4 transition-all duration-300 cursor-pointer flex items-center gap-4 h-[88px] relative w-full mb-1 shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
         >
             {/* Left Area: Icon */}
             <div className={cn(
@@ -97,17 +97,17 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onClick, onLike, isAdm
 
             {/* Middle Area: Title & Info */}
             <div className="flex-1 min-w-0 overflow-hidden flex flex-col justify-center">
-                <h3 className="font-bold text-gray-900 truncate tracking-tight text-lg group-hover:text-blue-600 transition-colors">
+                <h3 className="font-bold text-gray-900 truncate tracking-tight text-[17px] sm:text-lg group-hover:text-blue-600 transition-colors">
                     {post.title || '수학 도구'}
                 </h3>
-                <div className="flex items-center gap-2 mt-1">
-                    <span className={cn("text-[10px] font-black tracking-widest uppercase opacity-70", styles.text)}>
-                        {post.categories[0] || 'GENERAL'}
+                <div className="flex items-center gap-2 mt-0.5">
+                    <span className={cn("text-[9px] font-black tracking-widest uppercase opacity-70", styles.text)}>
+                        {post.categories[0] || '기타'}
                     </span>
                     <div className="w-1 h-1 rounded-full bg-gray-200" />
                     <div className="flex gap-1">
                         {post.grades.slice(0, 1).map(g => (
-                            <span key={g} className="text-[11px] font-bold text-gray-400">
+                            <span key={g} className="text-[10px] font-bold text-gray-400">
                                 {gradeMapping[g as keyof typeof gradeMapping] || g}
                             </span>
                         ))}
@@ -116,14 +116,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onClick, onLike, isAdm
             </div>
 
             {/* Right Area: Symbols & Arrow */}
-            <div className="flex items-center gap-4 shrink-0 pl-2">
-                {/* Visual Symbol */}
-                <span className="text-xl opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all">
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0 pl-1">
+                <span className="text-lg opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all hidden sm:inline">
                     {styles.symbol}
                 </span>
 
-                {/* Arrow icon (appears on hover) */}
-                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 opacity-60 group-hover:opacity-100 transition-all translate-x-1 group-hover:translate-x-0">
                     <ArrowRight className="w-4 h-4" />
                 </div>
             </div>
@@ -162,12 +160,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onClick, onLike, isAdm
 }
 
 const gradeMapping = {
-    '1학년': 'G1',
-    '2학년': 'G2',
-    '3학년': 'G3',
-    '4학년': 'G4',
-    '5학년': 'G5',
-    '6학년': 'G6',
-    '공통': 'All',
+    '1학년': '1학년',
+    '2학년': '2학년',
+    '3학년': '3학년',
+    '4학년': '4학년',
+    '5학년': '5학년',
+    '6학년': '6학년',
+    '공통': '공통',
 };
 

@@ -101,7 +101,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: "spring", damping: 32, stiffness: 350 }}
-            className="flex flex-col h-full bg-[#FBFBFD] z-20 absolute top-0 left-0 w-full min-h-screen overflow-hidden"
+            className="flex flex-col h-full bg-[#FBFBFD] z-[60] fixed top-0 left-0 lg:left-64 w-full lg:w-[calc(100%-16rem)] min-h-screen overflow-hidden"
         >
             <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-[#E5E5EA] flex items-center justify-between p-4 pt-safe z-30">
                 <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors">
@@ -120,9 +120,9 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto pb-40 bg-[#FBFBFD]">
-                <div className="max-w-3xl mx-auto w-full md:pt-8 md:px-8">
-                    <div className="bg-white md:rounded-[32px] overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-gray-100">
+            <div className="flex-1 overflow-y-auto pb-40 bg-[#FBFBFD] flex justify-center">
+                <div className="max-w-[640px] px-0 md:px-4 w-full md:pt-8">
+                    <div className="bg-white md:rounded-[32px] overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-gray-100 min-h-full">
                         {/* Mandatory Thumbnail / Fallback Area */}
                         <div className={cn(
                             "w-full h-[220px] sm:h-[280px] relative flex items-center justify-center overflow-hidden bg-gradient-to-br",

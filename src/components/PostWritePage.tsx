@@ -101,17 +101,6 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
         }
     };
 
-    const fetchMetadata = async () => {
-        if (!url || !url.startsWith('http')) return;
-        
-        // Remove auto-title generation to force user input
-        
-        if (!thumbnail) {
-            // Give it a tiny delay to ensure state updates
-            setTimeout(generateThumbnail, 100);
-        }
-    };
-
     const handleSubmit = async () => {
         if (!url.trim()) return;
         if (!title.trim()) {
@@ -172,7 +161,6 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                                 placeholder="https://..."
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
-                                onBlur={fetchMetadata}
                                 className="flex-1 bg-gray-50 border border-[#E5E5EA] rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono text-sm"
                             />
                         </div>

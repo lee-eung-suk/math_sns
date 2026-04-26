@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { Domain, Grade, createPost, supabase } from '@/api';
+import { Post, Domain, Grade, createPost, updatePost, supabase } from '@/api';
 import { cn, playUploadSound } from '@/lib/utils';
 import { Link as LinkIcon, Sparkles, X, Check } from 'lucide-react';
 
-export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; onCancel?: () => void }) {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [url, setUrl] = useState('');
-    const [selectedCategories, setSelectedCategories] = useState<Domain[]>([]);
-    const [selectedGrades, setSelectedGrades] = useState<Grade[]>([]);
-    const [thumbnail, setThumbnail] = useState('');
+export function PostWritePage({ onSuccess, onCancel, initialData }: { 
+    onSuccess: () => void; 
+    onCancel?: () => void;
+    initialData?: Post;
+}) {
+    const [title, setTitle] = useState(initialData?.title || '');
+    const [description, setDescription] = useState(initialData?.description || '');
+    const [url, setUrl] = useState(initialData?.url || '');
+    const [selectedCategories, setSelectedCategories] = useState<Domain[]>(initialData?.categories || []);
+    const [selectedGrades, setSelectedGrades] = useState<Grade[]>(initialData?.grades || []);
+    const [thumbnail, setThumbnail] = useState(initialData?.thumbnail || '');
     const [isGenerating, setIsGenerating] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     
@@ -100,19 +104,7 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
     const fetchMetadata = async () => {
         if (!url || !url.startsWith('http')) return;
         
-        let newTitle = title;
-        if (url.includes('geogebra')) {
-            newTitle = title || '지오지브라 수업 도구';
-            setTitle(newTitle);
-            if(!description) setDescription('인터랙티브 기하/수학 학습 도구입니다.');
-        } else if (url.includes('desmos')) {
-            newTitle = title || '데스모스 공학용 계산기';
-            setTitle(newTitle);
-            if(!description) setDescription('수식 입력과 그래프 생성이 편리한 웹 도구입니다.');
-        } else if (!title) {
-            newTitle = url.replace(/^https?:\/\//, '').split('/')[0];
-            setTitle(newTitle);
-        }
+        // Remove auto-title generation to force user input
         
         if (!thumbnail) {
             // Give it a tiny delay to ensure state updates
@@ -122,18 +114,29 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
 
     const handleSubmit = async () => {
         if (!url.trim()) return;
+        if (!title.trim()) {
+            alert('도구 제목을 반드시 입력해주세요');
+            return;
+        }
         setIsUploading(true);
         try {
-            await createPost({
-                title: title.trim() || url.replace(/^https?:\/\//, '').split('/')[0] || '유용한 수업 도구',
+            const postData = {
+                title: title.trim(),
                 description: description.trim() || '',
                 url: url.trim(),
                 categories: selectedCategories.length > 0 ? selectedCategories : ['기타'],
                 grades: selectedGrades.length > 0 ? selectedGrades : ['공통'],
                 thumbnail: thumbnail || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400'
-            });
-            playUploadSound();
-            alert('도구가 성공적으로 저장되었습니다!');
+            };
+
+            if (initialData) {
+                await updatePost(initialData.id, postData);
+                alert('수정되었습니다');
+            } else {
+                await createPost(postData);
+                playUploadSound();
+                alert('도구가 성공적으로 저장되었습니다!');
+            }
             onSuccess();
         } catch(error: any) {
             console.error(error);
@@ -147,7 +150,9 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
         <div className="flex flex-col h-full bg-[#FBFBFD] overflow-y-auto">
             <div className="max-w-2xl mx-auto w-full p-6 md:p-10">
                 <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-2xl font-bold text-[#1C1C1E]">수업 도구 공유하기</h1>
+                    <h1 className="text-2xl font-bold text-[#1C1C1E]">
+                        {initialData ? '수업 도구 수정하기' : '수업 도구 공유하기'}
+                    </h1>
                     {onCancel && (
                         <button onClick={onCancel} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                             <X className="w-6 h-6" />
@@ -176,14 +181,22 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
                     {/* Title & Content */}
                     <div className="space-y-5">
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-500 ml-1">도구 제목</label>
+                            <label className="text-sm font-bold text-gray-500 ml-1">
+                                도구 제목 <span className="text-red-500">*필수</span>
+                            </label>
                             <input 
                                 type="text" 
-                                placeholder="매력적인 제목을 입력하세요"
+                                placeholder="도구 제목을 반드시 입력해주세요"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="w-full bg-transparent border-b border-[#E5E5EA] px-2 py-3 text-xl font-bold focus:border-black focus:outline-none transition-colors"
+                                className={cn(
+                                    "w-full bg-transparent border-b px-2 py-3 text-xl font-bold focus:outline-none transition-colors",
+                                    title.trim().length === 0 ? "border-red-200 focus:border-red-500" : "border-[#E5E5EA] focus:border-black"
+                                )}
                             />
+                            {title.trim().length === 0 && (
+                                <p className="text-xs text-red-500 font-medium ml-1">도구 제목은 무조건 입력자가 입력하도록 해야 합니다.</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-gray-500 ml-1">간단 설명</label>
@@ -264,16 +277,16 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
                     {/* Submit */}
                     <button 
                         onClick={handleSubmit}
-                        disabled={isUploading || !url.trim()}
+                        disabled={isUploading || !url.trim() || !title.trim()}
                         className={cn(
                             "w-full text-white font-bold text-lg py-5 rounded-2xl transition-all flex items-center justify-center gap-3",
-                            (!url.trim() || isUploading) ? "bg-gray-300 cursor-not-allowed shadow-none text-white/80" : "bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-500/30"
+                            (!url.trim() || !title.trim() || isUploading) ? "bg-gray-300 cursor-not-allowed shadow-none text-white/80" : "bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-500/30"
                         )}
                     >
-                        {isUploading ? "업로드 중..." : (
+                        {isUploading ? "처리 중..." : (
                             <>
                                 <Check className="w-5 h-5" />
-                                수학 도구 공유하기
+                                {initialData ? "수정 완료하기" : "수학 도구 공유하기"}
                             </>
                         )}
                     </button>

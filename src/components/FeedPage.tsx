@@ -7,7 +7,19 @@ import { Search as SearchIcon, X } from 'lucide-react';
 const DOMAINS: (Domain | '전체')[] = ['전체', '수와 연산', '도형과 측정', '변화와 관계', '자료와 가능성', '기타'];
 const GRADES: (Grade | '전체')[] = ['전체', '1학년', '2학년', '3학년', '4학년', '5학년', '6학년', '공통'];
 
-export function FeedPage({ onPostClick, isSearchMode }: { onPostClick: (id: string) => void, isSearchMode?: boolean }) {
+export function FeedPage({ 
+    onPostClick, 
+    isSearchMode, 
+    isAdmin, 
+    onEdit, 
+    onDelete 
+}: { 
+    onPostClick: (id: string) => void, 
+    isSearchMode?: boolean,
+    isAdmin?: boolean,
+    onEdit?: (post: Post) => void,
+    onDelete?: (id: string) => void
+}) {
     const [posts, setPosts] = useState<Post[]>([]);
     const [domainFilter, setDomainFilter] = useState<Domain | '전체'>('전체');
     const [gradeFilter, setGradeFilter] = useState<Grade | '전체'>('전체');
@@ -215,7 +227,14 @@ export function FeedPage({ onPostClick, isSearchMode }: { onPostClick: (id: stri
                 ) : filteredPosts.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12 max-w-[1400px] mx-auto">
                         {filteredPosts.map(post => (
-                            <PostCard key={post.id} post={post} onClick={onPostClick} />
+                            <PostCard 
+                                key={post.id} 
+                                post={post} 
+                                onClick={onPostClick} 
+                                isAdmin={isAdmin}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
+                            />
                         ))}
                     </div>
                 ) : (

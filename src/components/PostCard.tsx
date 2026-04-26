@@ -9,9 +9,12 @@ interface PostCardProps {
     post: Post;
     onClick: (id: string) => void;
     onLike?: (id: string, newLiked: boolean) => void;
+    isAdmin?: boolean;
+    onEdit?: (post: Post) => void;
+    onDelete?: (id: string) => void;
 }
 
-export function PostCard({ post, onClick, onLike }: PostCardProps) {
+export function PostCard({ post, onClick, onLike, isAdmin, onEdit, onDelete }: PostCardProps) {
     const [liked, setLiked] = React.useState(false);
     const [likeCount, setLikeCount] = React.useState(post.like_count);
 
@@ -29,9 +32,14 @@ export function PostCard({ post, onClick, onLike }: PostCardProps) {
         if (onLike) onLike(post.id, newLiked);
     };
 
-    const handleLink = (e: React.MouseEvent) => {
+    const handleEdit = (e: React.MouseEvent) => {
         e.stopPropagation();
-        window.open(post.url, '_blank', 'noopener,noreferrer');
+        if (onEdit) onEdit(post);
+    };
+
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (onDelete) onDelete(post.id);
     };
 
     return (
@@ -41,8 +49,27 @@ export function PostCard({ post, onClick, onLike }: PostCardProps) {
             whileTap={{ scale: 0.98 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={() => onClick(post.id)}
-            className="group bg-white rounded-[40px] overflow-hidden transition-all duration-500 cursor-pointer flex flex-col h-full w-full max-w-sm mx-auto p-2"
+            className="group bg-white rounded-[40px] overflow-hidden transition-all duration-500 cursor-pointer flex flex-col h-full w-full max-w-sm mx-auto p-2 border border-transparent hover:border-gray-100 relative"
         >
+            {/* Admin Controls */}
+            {isAdmin && (
+                <div className="absolute top-4 left-4 z-10 flex gap-2">
+                    <button 
+                        onClick={handleEdit}
+                        className="p-2 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-gray-100 hover:bg-white text-gray-600 transition-all hover:scale-110 active:scale-95"
+                        title="수정하기"
+                    >
+                        <span className="text-sm">✏️</span>
+                    </button>
+                    <button 
+                        onClick={handleDelete}
+                        className="p-2 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-gray-100 hover:bg-red-50 text-red-500 transition-all hover:scale-110 active:scale-95"
+                        title="삭제하기"
+                    >
+                        <span className="text-sm">🗑️</span>
+                    </button>
+                </div>
+            )}
             {/* Iconic Thumbnail Container */}
             <div className="aspect-square relative overflow-hidden bg-[#FBFBFD] rounded-[32px] flex-shrink-0 flex items-center justify-center p-8 transition-all duration-500 group-hover:bg-gray-50/50">
                 {post.thumbnail ? (

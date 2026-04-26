@@ -110,3 +110,38 @@ export const toggleLike = async (postId: string, liked: boolean): Promise<void> 
       await supabase.from('tools').update({ like_count: post.like_count + (liked ? 1 : -1) }).eq('id', postId);
   }
 }
+
+export const updatePost = async (postId: string, postData: Partial<Omit<Post, 'id' | 'created_at'>>) => {
+  if (!supabase) {
+    const index = mockPosts.findIndex(p => p.id === postId);
+    if (index !== -1) {
+      mockPosts[index] = { ...mockPosts[index], ...postData };
+      return mockPosts[index];
+    }
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from('tools')
+    .update(postData)
+    .eq('id', postId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+};
+
+export const deletePost = async (postId: string) => {
+  if (!supabase) {
+    mockPosts = mockPosts.filter(p => p.id !== postId);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('tools')
+    .delete()
+    .eq('id', postId);
+
+  if (error) throw new Error(error.message);
+};

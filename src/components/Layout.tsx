@@ -1,8 +1,15 @@
 import React, { useEffect } from 'react';
-import { Home, Search, Edit3, User, BookOpen } from 'lucide-react';
+import { Home, Search, Edit3, User, BookOpen, ShieldCheck, LogOut, Lock } from 'lucide-react';
 import { cn, initAudio, playTabSwitchSound } from '@/lib/utils';
 
-export function Layout({ children, currentTab, onChangeTab }: { children: React.ReactNode, currentTab: string, onChangeTab: (tab: string) => void }) {
+export function Layout({ children, currentTab, isAdmin, onLoginClick, onLogoutClick, onChangeTab }: { 
+    children: React.ReactNode, 
+    currentTab: string, 
+    isAdmin?: boolean,
+    onLoginClick?: () => void,
+    onLogoutClick?: () => void,
+    onChangeTab: (tab: string) => void 
+}) {
     
     // Initialize audio on first user click
     useEffect(() => {
@@ -54,6 +61,33 @@ export function Layout({ children, currentTab, onChangeTab }: { children: React.
                         </button>
                     ))}
                 </nav>
+
+                {/* Admin Status Section */}
+                <div className="pt-6 border-t border-gray-100">
+                    {isAdmin ? (
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-xl">
+                                <ShieldCheck className="w-4 h-4" />
+                                <span className="text-xs font-bold">관리자 모드</span>
+                            </div>
+                            <button 
+                                onClick={onLogoutClick}
+                                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all font-semibold text-left"
+                            >
+                                <LogOut className="w-5 h-5" />
+                                <span className="text-sm">로그아웃</span>
+                            </button>
+                        </div>
+                    ) : (
+                        <button 
+                            onClick={onLoginClick}
+                            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-400 hover:bg-gray-50 hover:text-gray-900 transition-all font-semibold text-left"
+                        >
+                            <Lock className="w-5 h-5" />
+                            <span className="text-sm">관리자 로그인</span>
+                        </button>
+                    )}
+                </div>
             </aside>
 
             {/* Main Content Area */}

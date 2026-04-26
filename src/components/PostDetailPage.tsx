@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Post, getPosts, incrementView, toggleLike, supabase } from '@/api';
-import { TagBadge } from './SubjectBadge';
 import { ChevronLeft, Eye, Heart, Share, ExternalLink, Triangle, Calculator, BarChart3, Activity, Puzzle } from 'lucide-react';
 import { playLikeSound, cn } from '@/lib/utils';
 import { motion } from 'motion/react';
@@ -101,125 +100,106 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: "spring", damping: 32, stiffness: 350 }}
-            className="flex flex-col h-full bg-[#FBFBFD] z-[60] fixed top-0 left-0 lg:left-64 w-full lg:w-[calc(100%-16rem)] min-h-screen overflow-hidden"
+            className="flex flex-col h-full bg-white z-[60] fixed top-0 left-0 lg:left-64 w-full lg:w-[calc(100%-16rem)] min-h-screen overflow-hidden"
         >
-            <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-[#E5E5EA] flex items-center justify-between p-4 pt-safe z-30">
+            {/* Header */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-gray-100 flex items-center justify-between p-4 pt-safe z-30">
                 <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors">
-                    <ChevronLeft className="w-7 h-7" />
+                    <ChevronLeft className="w-6 h-6" />
                 </button>
-                <div className="font-black text-lg tracking-tight">수업 도구 탐색</div>
+                <div className="flex-1 px-4 text-center">
+                    <span className="text-[10px] font-black text-gray-400 tracking-widest uppercase">도구 상세 정보</span>
+                    <h2 className="text-sm font-black text-gray-900 truncate tracking-tight">{post.title}</h2>
+                </div>
                 <button 
-                    onClick={() => {
-                        if (navigator.share) {
-                            navigator.share({ title: post.title, url: post.url });
-                        }
-                    }}
+                    onClick={() => navigator.share && navigator.share({ title: post.title, url: post.url })}
                     className="p-2 -mr-2 rounded-full hover:bg-gray-100 transition-colors"
                 >
-                    <Share className="w-5 h-5 text-gray-400" />
+                    <Share className="w-5 h-5 text-gray-700" />
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto pb-40 bg-[#FBFBFD] flex justify-center">
-                <div className="max-w-[640px] px-0 md:px-4 w-full md:pt-8">
-                    <div className="bg-white md:rounded-[32px] overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-gray-100 min-h-full">
-                        {/* Mandatory Thumbnail / Fallback Area */}
-                        <div className={cn(
-                            "w-full h-[220px] sm:h-[280px] relative flex items-center justify-center overflow-hidden bg-gradient-to-br",
-                            styles.bg
-                        )}>
-                            {post.thumbnail && post.thumbnail.startsWith('http') ? (
-                                <>
-                                    <img src={post.thumbnail} alt="thumbnail" className="w-full h-full object-cover" />
-                                    <div className="absolute inset-0 bg-black/5" />
-                                </>
-                            ) : (
-                                <div className="flex flex-col items-center gap-4">
-                                    <div className={cn("w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center shadow-2xl", styles.iconBg)}>
-                                        <styles.icon className="w-10 h-10 sm:w-12 h-12 text-white" strokeWidth={2.5} />
-                                    </div>
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
-                                        <span className="text-[140px] font-black tracking-tighter transform -rotate-12 translate-y-10">
-                                            {styles.symbol}
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto pb-40 bg-white flex justify-center">
+                <div className="max-w-[700px] w-full border-x border-gray-100 min-h-full">
+                    {/* Hero Area */}
+                    <div className={cn(
+                        "w-full h-[240px] sm:h-[340px] relative flex items-center justify-center overflow-hidden bg-gradient-to-br",
+                        styles.bg
+                    )}>
+                        <div className={cn("w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center shadow-2xl transition-transform hover:scale-105 bg-white")}>
+                            <styles.icon className={cn("w-12 h-12 sm:w-16 h-16", styles.text.replace('text-', 'text-'))} strokeWidth={2.5} />
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05]">
+                            <span className="text-[180px] font-black tracking-tighter transform -rotate-12 translate-y-10">
+                                {styles.symbol}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="p-8 sm:p-12 space-y-10">
+                        <div className="space-y-6">
+                            <div className="flex flex-wrap gap-2">
+                                {post.categories.map(d => (
+                                    <span key={d} className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[11px] font-black tracking-widest uppercase">
+                                        #{d}
+                                    </span>
+                                ))}
+                                {post.grades.map(g => (
+                                    <span key={g} className="px-3 py-1 bg-gray-50 text-gray-400 border border-gray-100 rounded-full text-[11px] font-bold">
+                                        {g}
+                                    </span>
+                                ))}
+                            </div>
+                            
+                            <h1 className="text-3xl sm:text-4xl font-black text-[#1C1C1E] leading-[1.1] tracking-tighter">
+                                {post.title}
+                            </h1>
+                            <p className="text-lg leading-relaxed text-gray-700 whitespace-pre-wrap font-medium tracking-tight">
+                                {post.description}
+                            </p>
                         </div>
 
-                        <div className="p-8 sm:p-12 space-y-10">
-                            <div className="space-y-6">
-                                <div className="flex flex-wrap gap-2">
-                                    {post.categories.map(d => (
-                                        <span key={d} className={cn("px-3 py-1 rounded-full text-[11px] font-black tracking-widest uppercase", styles.iconBg.replace('bg-', 'bg-opacity-10 text-'))}>
-                                            {d}
-                                        </span>
-                                    ))}
-                                    {post.grades.map(g => (
-                                        <span key={g} className="px-3 py-1 bg-gray-50 text-gray-400 border border-gray-100 rounded-full text-[11px] font-bold">
-                                            {g}
-                                        </span>
-                                    ))}
-                                </div>
-                                
-                                <div className="flex items-start justify-between gap-4">
-                                    <h1 className="text-3xl sm:text-4xl font-black text-[#1C1C1E] leading-[1.1] tracking-tighter break-keep">
-                                        {post.title}
-                                    </h1>
-                                    <div className="shrink-0 w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl grayscale opacity-50 group-hover:grayscale-0">
-                                        {styles.symbol}
-                                    </div>
-                                </div>
+                        <button 
+                            onClick={handleLink}
+                            className="group w-full py-5 flex items-center justify-center gap-3 bg-[#1C1C1E] text-white rounded-full font-black text-xl shadow-2xl shadow-blue-100 hover:bg-black transition-all active:scale-[0.98]"
+                        >
+                            <ExternalLink className="w-6 h-6 transition-transform group-hover:scale-110" />
+                            도구 바로가기
+                        </button>
+
+                        <div className="flex items-center gap-10 py-6 border-y border-gray-100">
+                            <div className="flex items-center gap-2.5">
+                                <Eye className="w-5 h-5 text-gray-400" />
+                                <span className="text-sm font-black text-gray-900">{post.view_count.toLocaleString()} <span className="text-gray-400 font-bold">조회</span></span>
                             </div>
-
-                            <button 
-                                onClick={handleLink}
-                                className="group w-full py-5 flex items-center justify-center gap-3 bg-[#1C1C1E] text-white rounded-[24px] font-black text-xl shadow-2xl shadow-gray-200 hover:bg-black transition-all active:scale-[0.98]"
-                            >
-                                <ExternalLink className="w-6 h-6 transition-transform group-hover:scale-110" />
-                                도구 바로가기
-                            </button>
-
-                            <div className="space-y-6 pt-10 border-t border-gray-50">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-1 h-4 bg-blue-600 rounded-full" />
-                                    <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">도구 상세 설명</h3>
-                                </div>
-                                <div className="text-lg leading-relaxed text-gray-700 whitespace-pre-wrap font-medium tracking-tight">
-                                    {post.description}
-                                </div>
+                            <div className="flex items-center gap-2.5">
+                                <Heart className="w-5 h-5 text-gray-400" />
+                                <span className="text-sm font-black text-gray-900">{likeCount} <span className="text-gray-400 font-bold">저장</span></span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Bottom Interaction Bar */}
-            <div className="fixed bottom-0 w-full bg-white/80 backdrop-blur-xl border-t border-[#E5E5EA] flex items-center justify-between p-4 pb-safe-offset-4 z-40 px-10">
-                <div className="flex items-center gap-10">
-                    <div className="flex items-center gap-2.5 text-gray-400">
-                        <Eye className="w-6 h-6" />
-                        <span className="text-lg font-black">{post.view_count.toLocaleString()}</span>
-                    </div>
-                    <button 
-                        onClick={handleLike}
-                        className={cn("flex items-center gap-2.5 transition-all active:scale-75", liked ? "text-pink-500" : "hover:text-pink-500 text-gray-400")}>
-                        <Heart className={cn("w-6 h-6", liked && "fill-current")} />
-                        <span className="text-lg font-black">{likeCount}</span>
-                    </button>
-                </div>
-                
-                <div className="hidden sm:flex flex-col items-end">
-                    <span className="text-[11px] text-gray-300 font-black tracking-widest uppercase">Registered On</span>
-                    <span className="text-sm text-gray-500 font-bold">
-                        {new Date(post.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </span>
-                </div>
+            {/* Bottom Floating Interaction Bar */}
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 lg:translate-x-32 w-auto flex bg-white/90 backdrop-blur-xl border border-gray-200 rounded-full shadow-2xl p-2 px-6 items-center gap-4 z-40">
+                <button 
+                    onClick={handleLike}
+                    className={cn("flex items-center gap-2 transition-all active:scale-75", liked ? "text-pink-500" : "hover:text-pink-500 text-gray-400 font-black")}>
+                    <Heart className={cn("w-5 h-5", liked && "fill-current")} />
+                    <span className="text-sm font-black">{liked ? '저장됨' : '저장하기'}</span>
+                </button>
+                <div className="w-px h-4 bg-gray-200" />
+                <button 
+                    onClick={() => navigator.share && navigator.share({ title: post.title, url: post.url })}
+                    className="text-gray-400 hover:text-blue-500 font-black flex items-center gap-2"
+                >
+                    <Share className="w-5 h-5" />
+                    <span className="text-sm">공유</span>
+                </button>
             </div>
-            
-            <style dangerouslySetInnerHTML={{__html:`
-                .pb-safe-offset-4 { padding-bottom: calc(env(safe-area-inset-bottom) + 1rem); }
-            `}} />
         </motion.div>
     );
-}
+};

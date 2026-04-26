@@ -11,6 +11,7 @@ import { PostDetailPage } from './components/PostDetailPage';
 import { Post, deletePost } from './api';
 import { AnimatePresence, motion } from 'motion/react';
 import { Plus, Check, ShieldCheck, LogOut, Key } from 'lucide-react';
+import { RightPanel } from './components/RightPanel';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState('home');
@@ -26,6 +27,15 @@ export default function App() {
   useEffect(() => {
     const adminStatus = localStorage.getItem('isAdmin') === 'true';
     setIsAdmin(adminStatus);
+  }, []);
+
+  useEffect(() => {
+    const handleOpenUpload = () => {
+      setEditingPost(null);
+      setIsUploadModalOpen(true);
+    };
+    window.addEventListener('open-upload-modal', handleOpenUpload);
+    return () => window.removeEventListener('open-upload-modal', handleOpenUpload);
   }, []);
 
   const handlePostClick = (id: string) => {
@@ -87,6 +97,7 @@ export default function App() {
         isAdmin={isAdmin}
         onLoginClick={() => setIsLoginModalOpen(true)}
         onLogoutClick={handleLogout}
+        rightPanel={<RightPanel onPostClick={handlePostClick} />}
         onChangeTab={(tab) => { 
           if(tab === 'write') {
             setEditingPost(null);

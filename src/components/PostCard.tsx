@@ -1,6 +1,6 @@
 import React from 'react';
 import { Post, toggleLike } from '@/api';
-import { Eye, Heart, Calculator, Triangle, Activity, BarChart3, Puzzle, ArrowRight } from 'lucide-react';
+import { Eye, Heart, Calculator, Triangle, Activity, BarChart3, Puzzle, ArrowRight, Bookmark } from 'lucide-react';
 import { playLikeSound, cn } from '@/lib/utils';
 import { motion } from 'motion/react';
 
@@ -80,80 +80,92 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onClick, onLike, isAdm
     return (
         <motion.div
             layout
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            whileHover={{ x: 4, backgroundColor: '#F9FAFB' }}
-            whileTap={{ scale: 0.99 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            whileHover={{ backgroundColor: '#F9FAFB' }}
             onClick={() => onClick(post.id)}
-            className="group bg-white rounded-2xl border border-gray-100 p-4 transition-all duration-300 cursor-pointer flex items-center gap-4 h-[88px] relative w-full mb-1 shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
+            className="group px-4 py-4 transition-all duration-200 cursor-pointer flex gap-3 border-b border-gray-100 relative w-full"
         >
-            {/* Left Area: Icon */}
-            <div className={cn(
-                "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105",
-                styles.iconBg
-            )}>
-                <styles.icon className={cn("w-6 h-6", styles.text)} strokeWidth={2.5} />
+            {/* Left Area: Icon (Avatar Style) */}
+            <div className="shrink-0 pt-1">
+                <div className={cn(
+                    "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-transform",
+                    styles.iconBg
+                )}>
+                    <styles.icon className={cn("w-5 h-5 sm:w-6 sm:h-6", styles.text)} strokeWidth={2} />
+                </div>
             </div>
 
-            {/* Middle Area: Title & Info */}
-            <div className="flex-1 min-w-0 overflow-hidden flex flex-col justify-center">
-                <h3 className="font-bold text-gray-900 truncate tracking-tight text-[17px] sm:text-lg group-hover:text-blue-600 transition-colors">
-                    {post.title || '수학 도구'}
-                </h3>
-                <div className="flex items-center gap-2 mt-0.5">
-                    <span className={cn("text-[9px] font-black tracking-widest uppercase opacity-70", styles.text)}>
-                        {post.categories[0] || '기타'}
+            {/* Middle Area: Content */}
+            <div className="flex-1 min-w-0 flex flex-col">
+                <div className="flex items-center justify-between mb-0.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-black text-gray-900 tracking-tight text-base group-hover:text-blue-600 transition-colors">
+                            {post.title || '수학 도구'}
+                        </span>
+                        <div className="flex gap-1 items-center">
+                            {post.grades.map(g => (
+                                <span key={g} className="text-[11px] font-bold text-gray-400">
+                                    · {gradeMapping[g as keyof typeof gradeMapping] || g}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                    {isAdmin && (
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                            <button onClick={handleEdit} className="p-1 hover:bg-gray-100 rounded-lg">✏️</button>
+                            <button onClick={handleDelete} className="p-1 hover:bg-red-50 rounded-lg">🗑️</button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Tags Inline */}
+                <div className="flex gap-2 items-center mb-1">
+                     <span className={cn("text-[10px] font-black tracking-widest uppercase", styles.text)}>
+                        #{post.categories[0] || '기타'}
                     </span>
-                    <div className="w-1 h-1 rounded-full bg-gray-200" />
-                    <div className="flex gap-1">
-                        {post.grades.slice(0, 1).map(g => (
-                            <span key={g} className="text-[10px] font-bold text-gray-400">
-                                {gradeMapping[g as keyof typeof gradeMapping] || g}
-                            </span>
-                        ))}
+                </div>
+
+                {/* Description - 1 line */}
+                <p className="text-gray-500 text-sm mb-2 line-clamp-1 break-all">
+                    {post.description || '이 도구에 대한 설명이 아직 없습니다.'}
+                </p>
+
+                {/* CTA - Inline Link Style */}
+                <div className="flex items-center text-blue-600 font-bold text-xs gap-1 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all mb-3">
+                    도구 바로가기 <ArrowRight className="w-3 h-3" strokeWidth={3} />
+                </div>
+
+                {/* Stats Bar (Twitter Style) */}
+                <div className="flex items-center justify-between max-w-sm">
+                    <div className="flex items-center gap-1 text-gray-400 hover:text-blue-500 transition-colors group/stat">
+                        <div className="p-2 rounded-full group-hover/stat:bg-blue-50 transition-colors flex items-center gap-1">
+                            <Eye className="w-4 h-4" />
+                            <span className="text-[12px] font-medium">{post.view_count}</span>
+                        </div>
+                    </div>
+                    <div 
+                        onClick={handleLike}
+                        className={cn(
+                            "flex items-center gap-1 transition-colors group/stat",
+                            liked ? "text-red-500" : "text-gray-400 hover:text-red-500"
+                        )}
+                    >
+                        <div className={cn(
+                            "p-2 rounded-full transition-colors flex items-center gap-1",
+                            liked ? "bg-red-50" : "group-hover/stat:bg-red-50"
+                        )}>
+                            <Heart className={cn("w-4 h-4", liked && "fill-current")} />
+                            <span className="text-[12px] font-medium">{likeCount}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-400 hover:text-green-500 transition-colors group/stat">
+                        <div className="p-2 rounded-full group-hover/stat:bg-green-50 transition-colors flex items-center gap-1">
+                             <Bookmark className="w-4 h-4" />
+                             <span className="text-[12px] font-medium">저장</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            {/* Right Area: Symbols & Arrow */}
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0 pl-1">
-                <span className="text-lg opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all hidden sm:inline">
-                    {styles.symbol}
-                </span>
-
-                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 opacity-60 group-hover:opacity-100 transition-all translate-x-1 group-hover:translate-x-0">
-                    <ArrowRight className="w-4 h-4" />
-                </div>
-            </div>
-
-            {/* Admin Controls (Floating) */}
-            {isAdmin && (
-                <div className="absolute top-0 right-0 p-2 z-20 flex gap-1 opacity-0 group-hover:opacity-100 transition-all -translate-y-1/2">
-                    <button 
-                        onClick={handleEdit}
-                        className="p-1.5 bg-white rounded-full shadow-md border border-gray-100 hover:bg-gray-50 transition-all"
-                    >
-                        <span className="text-[10px]">✏️</span>
-                    </button>
-                    <button 
-                        onClick={handleDelete}
-                        className="p-1.5 bg-white rounded-full shadow-md border border-gray-100 hover:bg-red-50 text-red-500 transition-all font-bold"
-                    >
-                        <span className="text-[10px]">🗑️</span>
-                    </button>
-                </div>
-            )}
-            
-            {/* Tiny stats bar at very bottom (Subtle) */}
-            <div className="absolute bottom-2 left-20 right-20 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-y-1 group-hover:translate-y-0">
-                 <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
-                    <Eye className="w-3 h-3" />
-                    {post.view_count}
-                 </div>
-                 <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
-                    <Heart className="w-3 h-3" />
-                    {likeCount}
-                 </div>
             </div>
         </motion.div>
     );

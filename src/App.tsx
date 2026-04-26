@@ -44,17 +44,10 @@ export default function App() {
           }
         }}>
           <div className="h-full relative overflow-x-hidden flex-1 flex flex-col w-full">
-            {currentTab === 'home' && <FeedPage onPostClick={handlePostClick} />}
-            
-            {(currentTab === 'search' || currentTab === 'profile') && (
-               <div className="flex flex-col items-center justify-center p-20 text-gray-400 font-medium bg-[#FBFBFD] h-full flex-1 gap-2">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-2">
-                    {currentTab === 'search' ? '🔍' : '👤'}
-                  </div>
-                  {currentTab === 'search' ? '도구 검색 기능 준비 중입니다.' : '프로필 기능 준비 중입니다.'}
-               </div>
+            {(currentTab === 'home' || currentTab === 'search') && (
+              <FeedPage onPostClick={handlePostClick} isSearchMode={currentTab === 'search'} />
             )}
-            
+
             {/* Post Detail Overlay */}
             <AnimatePresence>
                 {currentPostId && (

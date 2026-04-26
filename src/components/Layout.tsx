@@ -21,11 +21,10 @@ export function Layout({ children, currentTab, onChangeTab }: { children: React.
         }
     };
 
-    const navItems = [
+        const navItems = [
         { id: 'home', label: '홈', icon: Home },
         { id: 'search', label: '검색', icon: Search },
         { id: 'write', label: '작성', icon: Edit3 },
-        { id: 'profile', label: '프로필', icon: User },
     ];
 
     return (
@@ -37,8 +36,8 @@ export function Layout({ children, currentTab, onChangeTab }: { children: React.
                         <BookOpen className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-lg font-bold tracking-tight leading-none italic">응석쌤</h1>
-                        <p className="text-[10px] font-bold text-gray-400 mt-0.5">초등 수학 수업 도구</p>
+                        <h1 className="text-xl font-black tracking-tight leading-none text-gray-900">초등 수(數)다방</h1>
+                        <p className="text-[11px] font-bold text-gray-500 mt-1">수학 수업 도구 모음</p>
                     </div>
                 </div>
                 <nav className="flex-1 space-y-1">

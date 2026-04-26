@@ -34,13 +34,22 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
 
+            const bgColors = [
+                ['#F9FAFB', '#F3F4F6'], // Subtle gray (default)
+                ['#EFF6FF', '#DBEAFE'], // Blue
+                ['#ECFDF5', '#D1FAE5'], // Emerald
+                ['#FDF4FF', '#FAE8FF'], // Fuchsia
+                ['#FFFBEB', '#FEF3C7']  // Amber
+            ];
+            
             const domain = selectedDomains[0] || '기타';
-            let gradients = ['#3b82f6', '#1d4ed8']; 
+            let gradients = bgColors[0]; 
             let emoji = '🔢';
-            if (domain === '수와 연산') { gradients = ['#f97316', '#c2410c']; emoji = '🔢'; }
-            if (domain === '변화와 관계') { gradients = ['#10b981', '#047857']; emoji = '📈'; }
-            if (domain === '도형과 측정') { gradients = ['#a855f7', '#7e22ce']; emoji = '📐'; }
-            if (domain === '자료와 가능성') { gradients = ['#3b82f6', '#1d4ed8']; emoji = '📊'; }
+            let accentColor = '#3B82F6';
+            if (domain === '수와 연산') { gradients = bgColors[4]; emoji = '🔢'; accentColor = '#F59E0B'; }
+            if (domain === '변화와 관계') { gradients = bgColors[2]; emoji = '📈'; accentColor = '#10B981'; }
+            if (domain === '도형과 측정') { gradients = bgColors[3]; emoji = '📐'; accentColor = '#D946EF'; }
+            if (domain === '자료와 가능성') { gradients = bgColors[1]; emoji = '📊'; accentColor = '#3B82F6'; }
 
             const grd = ctx.createLinearGradient(0, 0, 600, 400);
             grd.addColorStop(0, gradients[0]);
@@ -48,32 +57,64 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
             ctx.fillStyle = grd;
             ctx.fillRect(0, 0, 600, 400);
 
-            ctx.font = '80px Noto Sans KR';
+            // Draw decorative element (soft colored circle behind emoji)
+            ctx.beginPath();
+            ctx.arc(300, 100, 60, 0, 2 * Math.PI);
+            ctx.fillStyle = accentColor + '20'; // 20 hex opacity
+            ctx.fill();
+
+            // Emoji
+            ctx.font = '64px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(emoji, 300, 120);
+            ctx.fillText(emoji, 300, 105);
 
-            ctx.font = 'bold 42px "Noto Sans KR", sans-serif';
-            ctx.fillStyle = '#FFFFFF';
+            // Title
+            ctx.font = 'bold 56px "Pretendard", "Noto Sans KR", sans-serif';
+            ctx.fillStyle = '#111827';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.05)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 4;
             
             const displayTitle = title.trim() || url.replace(/^https?:\/\//, '').split('/')[0] || '수업 도구';
             const words = displayTitle.split(' ');
             let line = '';
             let y = 240;
+            const lines = [];
+            
+            // Calculate lines
+            ctx.shadowColor = 'transparent'; // Turn off shadow just for measuring
             for(let n = 0; n < words.length; n++) {
                 let testLine = line + words[n] + ' ';
                 let testWidth = ctx.measureText(testLine).width;
-                if (testWidth > 500 && n > 0) {
-                    ctx.fillText(line, 300, y);
+                if (testWidth > 520 && n > 0) {
+                    lines.push(line.trim());
                     line = words[n] + ' ';
-                    y += 60;
                 } else {
                     line = testLine;
                 }
             }
-            ctx.fillText(line, 300, y);
+            lines.push(line.trim());
 
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.08)'; // Turn on shadow for drawing
+            
+            // Limit to 2 lines
+            const linesToDraw = lines.slice(0, 2);
+            // If it was more than 2, add ellipsis
+            if (lines.length > 2) {
+                linesToDraw[1] = linesToDraw[1] + '...';
+            }
+
+            // Adjust starting Y to center text block
+            const lineHeight = 70;
+            const textBlockHeight = linesToDraw.length * lineHeight;
+            let startY = 250 - (textBlockHeight / 4);
+
+            linesToDraw.forEach((l, i) => {
+                ctx.fillText(l, 300, startY + (i * lineHeight));
+            });
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
             setThumbnailUrl(dataUrl);
 
             // Supabase object storage uploading is failing or not needed immediately 
@@ -135,8 +176,9 @@ export function PostWritePage({ onSuccess, onCancel }: { onSuccess: () => void; 
             });
             playUploadSound();
             onSuccess();
-        } catch(error) {
+        } catch(error: any) {
             console.error(error);
+            alert(`업로드에 실패했습니다. (원인: ${error.message})`);
         } finally {
             setIsUploading(false);
         }

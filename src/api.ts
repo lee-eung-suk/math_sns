@@ -74,7 +74,7 @@ export const createPost = async (
 
   if (error) {
     console.error('Error creating post:', error);
-    return null;
+    throw new Error(error.message);
   }
   return data;
 };

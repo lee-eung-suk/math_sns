@@ -4,8 +4,10 @@
 create table public.posts (
   id uuid default gen_random_uuid() primary key,
   title text not null,
-  content text not null,
-  subject text not null check (subject in ('국어', '수학', '사회', '과학', '기타')),
+  content text,
+  url text not null,
+  domains text[] not null default '{}',
+  grades text[] not null default '{}',
   thumbnail_url text,
   author_id uuid references auth.users(id),
   view_count integer default 0,

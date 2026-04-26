@@ -65,15 +65,22 @@ export const createPost = async (
     return newPost;
   }
 
-  const { data, error } = await supabase
+  const { data, error, status, statusText } = await supabase
     .from('tools')
     .insert([postData])
     .select()
     .single();
 
   if (error) {
-    console.error('Error creating tool:', error);
-    throw new Error(error.message);
+    console.error('Supabase Error Details:', {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+      status,
+      statusText
+    });
+    throw new Error(`${error.message} (Code: ${error.code})`);
   }
   return data;
 };

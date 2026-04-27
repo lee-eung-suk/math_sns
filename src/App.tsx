@@ -15,6 +15,7 @@ import { RightPanel } from './components/RightPanel';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState('home');
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentPostId, setCurrentPostId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
@@ -27,7 +28,33 @@ export default function App() {
   useEffect(() => {
     const adminStatus = localStorage.getItem('isAdmin') === 'true';
     setIsAdmin(adminStatus);
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else if (savedTheme === 'light') {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    }
   }, []);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => {
+      const newValue = !prev;
+      if (newValue) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+      return newValue;
+    });
+  };
 
   useEffect(() => {
     const handleOpenUpload = () => {
@@ -91,10 +118,12 @@ export default function App() {
   };
 
   return (
-    <div className="bg-white min-h-screen w-full relative">
+    <div className="bg-white dark:bg-black min-h-screen w-full relative transition-colors duration-300">
       <Layout 
         currentTab={currentTab} 
         isAdmin={isAdmin}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={toggleDarkMode}
         onLoginClick={() => setIsLoginModalOpen(true)}
         onLogoutClick={handleLogout}
         rightPanel={<RightPanel onPostClick={handlePostClick} />}
@@ -134,7 +163,7 @@ export default function App() {
                     exit={{ opacity: 0, y: 100 }}
                     className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-0 md:p-6"
                   >
-                    <div className="w-full max-w-[640px] h-full md:h-auto md:max-h-[85vh] bg-white md:rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+                    <div className="w-full max-w-[640px] h-full md:h-auto md:max-h-[85vh] bg-white dark:bg-gray-950 md:rounded-3xl shadow-2xl overflow-hidden flex flex-col border dark:border-gray-800 transition-colors duration-300">
                       <PostWritePage 
                         initialData={editingPost || undefined}
                         onSuccess={handleWriteSuccess} 
@@ -161,15 +190,15 @@ export default function App() {
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl space-y-6"
+              className="bg-white dark:bg-gray-900 rounded-3xl p-8 w-full max-w-sm shadow-2xl space-y-6 border dark:border-gray-800 transition-colors duration-300"
             >
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-blue-50 rounded-2xl">
-                  <Key className="w-6 h-6 text-blue-600" />
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
+                  <Key className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">관리자 로그인</h3>
-                  <p className="text-sm text-gray-500 font-medium tracking-tight">수다방 관리 권한 인증</p>
+                  <h3 className="text-xl font-bold dark:text-white">관리자 로그인</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-tight">수다방 관리 권한 인증</p>
                 </div>
               </div>
               
@@ -180,20 +209,20 @@ export default function App() {
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                  className="w-full bg-gray-100 border border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-2xl p-4 text-center text-lg font-bold placeholder:text-gray-300 outline-none transition-all"
+                  className="w-full bg-gray-100 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-2xl p-4 text-center text-lg font-bold placeholder:text-gray-300 dark:text-white outline-none transition-all"
                   autoFocus
                 />
                 
                 <div className="flex gap-3">
                   <button 
                     onClick={() => setIsLoginModalOpen(false)}
-                    className="flex-1 py-4 font-bold text-gray-500 hover:bg-gray-100 rounded-2xl transition-colors"
+                    className="flex-1 py-4 font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-colors"
                   >
                     취소
                   </button>
                   <button 
                     onClick={handleLogin}
-                    className="flex-1 py-4 bg-black text-white font-bold rounded-2xl transition-all hover:bg-gray-900 shadow-lg"
+                    className="flex-1 py-4 bg-black dark:bg-blue-600 text-white font-bold rounded-2xl transition-all hover:bg-gray-900 dark:hover:bg-blue-700 shadow-lg"
                   >
                     확인
                   </button>
@@ -213,7 +242,7 @@ export default function App() {
           setEditingPost(null);
           setIsUploadModalOpen(true);
         }}
-        className="fixed bottom-[80px] right-4 lg:bottom-10 lg:right-12 z-[50] w-14 h-14 lg:w-16 lg:h-16 bg-[#1C1C1E] text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-black transition-all"
+        className="fixed bottom-[80px] right-4 lg:bottom-10 lg:right-12 z-[50] w-14 h-14 lg:w-16 lg:h-16 bg-[#1C1C1E] dark:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-black dark:hover:bg-blue-700 transition-all"
       >
         <Plus className="w-8 h-8" />
       </motion.button>

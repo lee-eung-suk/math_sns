@@ -169,23 +169,23 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#FBFBFD] overflow-y-auto">
+        <div className="flex flex-col h-full bg-[#FBFBFD] dark:bg-black overflow-y-auto transition-colors duration-300">
             <div className="max-w-2xl mx-auto w-full p-6 md:p-10">
                 <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-2xl font-bold text-[#1C1C1E]">
+                    <h1 className="text-2xl font-bold text-[#1C1C1E] dark:text-white transition-colors">
                         {initialData ? '수업 도구 수정하기' : '수업 도구 공유하기'}
                     </h1>
                     {onCancel && (
-                        <button onClick={onCancel} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                            <X className="w-6 h-6" />
+                        <button onClick={onCancel} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-full transition-colors">
+                            <X className="w-6 h-6 dark:text-white" />
                         </button>
                     )}
                 </div>
             
-                <div className="space-y-8 bg-white p-8 rounded-3xl card-border shadow-sm">
+                <div className="space-y-8 bg-white dark:bg-gray-950 p-8 rounded-3xl card-border shadow-sm transition-colors border border-[#E5E5EA] dark:border-gray-800">
                     {/* URL Input */}
                     <div className="space-y-3">
-                        <label className="text-sm font-bold text-gray-500 ml-1 flex items-center gap-2">
+                        <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1 flex items-center gap-2">
                             <LinkIcon className="w-4 h-4" /> 도구 링크
                         </label>
                         <div className="flex gap-2">
@@ -194,7 +194,7 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                                 placeholder="https://..."
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
-                                className="flex-1 bg-gray-50 border border-[#E5E5EA] rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono text-sm"
+                                className="flex-1 bg-gray-50 dark:bg-gray-900 border border-[#E5E5EA] dark:border-gray-800 rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono text-sm dark:text-white"
                             />
                         </div>
                     </div>
@@ -202,7 +202,7 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                     {/* Title & Content */}
                     <div className="space-y-5">
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-500 ml-1">
+                            <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">
                                 도구 제목 <span className="text-red-500">*필수</span>
                             </label>
                             <input 
@@ -211,8 +211,8 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 className={cn(
-                                    "w-full bg-transparent border-b px-2 py-3 text-xl font-bold focus:outline-none transition-colors",
-                                    title.trim().length === 0 ? "border-red-200 focus:border-red-500" : "border-[#E5E5EA] focus:border-black"
+                                    "w-full bg-transparent border-b px-2 py-3 text-xl font-bold focus:outline-none transition-colors dark:text-white",
+                                    title.trim().length === 0 ? "border-red-200 focus:border-red-500" : "border-[#E5E5EA] dark:border-gray-800 focus:border-black dark:focus:border-white"
                                 )}
                             />
                             {title.trim().length === 0 && (
@@ -220,13 +220,13 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                             )}
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-500 ml-1">간단 설명</label>
+                            <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">간단 설명</label>
                             <textarea 
                                 placeholder="선생님들께 이 도구의 활용팁을 알려주세요 (최대 280자)"
                                 value={description}
                                 maxLength={280}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="w-full bg-gray-50 border border-[#E5E5EA] rounded-2xl p-4 text-lg resize-none min-h-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full bg-gray-50 dark:bg-gray-900 border border-[#E5E5EA] dark:border-gray-800 rounded-2xl p-4 text-lg resize-none min-h-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white transition-colors"
                             />
                         </div>
                     </div>
@@ -234,7 +234,7 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                     {/* Toggles */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-3">
-                            <label className="text-sm font-bold text-gray-500 ml-1">수학 영역 (다중 선택)</label>
+                            <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">수학 영역 (다중 선택)</label>
                             <div className="flex flex-wrap gap-2">
                                 {DOMAINS.map(d => (
                                     <button
@@ -242,7 +242,7 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                                         onClick={() => toggleDomain(d)}
                                         className={cn(
                                             "px-3 py-1.5 rounded-lg text-sm font-semibold transition-all border",
-                                            selectedCategories.includes(d) ? "bg-black text-white border-black" : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                                            selectedCategories.includes(d) ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white" : "bg-white dark:bg-gray-900 text-gray-500 border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600"
                                         )}
                                     >
                                         {d}
@@ -251,7 +251,7 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                             </div>
                         </div>
                         <div className="space-y-3">
-                            <label className="text-sm font-bold text-gray-500 ml-1">대상 학년 (다중 선택)</label>
+                            <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">대상 학년 (다중 선택)</label>
                             <div className="flex flex-wrap gap-2">
                                 {GRADES.map(g => (
                                     <button
@@ -259,7 +259,7 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                                         onClick={() => toggleGrade(g)}
                                         className={cn(
                                             "px-3 py-1.5 rounded-lg text-sm font-semibold transition-all border",
-                                            selectedGrades.includes(g) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                                            selectedGrades.includes(g) ? "bg-blue-600 text-white border-blue-600" : "bg-white dark:bg-gray-900 text-gray-500 border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600"
                                         )}
                                     >
                                         {g}
@@ -271,9 +271,9 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
 
                     {/* Body Image Upload */}
                     <div className="space-y-3">
-                        <label className="text-sm font-bold text-gray-500 ml-1">본문 캡쳐 이미지 (옵션)</label>
+                        <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">본문 캡쳐 이미지 (옵션)</label>
                         {imageUrl ? (
-                            <div className="relative rounded-2xl overflow-hidden border border-[#E5E5EA] shadow-inner group">
+                            <div className="relative rounded-2xl overflow-hidden border border-[#E5E5EA] dark:border-gray-800 shadow-inner group">
                                 <img src={imageUrl} alt="Uploaded prep" className="w-full aspect-video object-cover" />
                                 <button 
                                     onClick={() => setImageUrl('')}
@@ -283,24 +283,24 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                                 </button>
                             </div>
                         ) : (
-                            <label className="w-full aspect-video cursor-pointer flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[#E5E5EA] rounded-2xl text-gray-400 hover:bg-gray-50 hover:text-blue-500 hover:border-blue-200 transition-all">
+                            <label className="w-full aspect-video cursor-pointer flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[#E5E5EA] dark:border-gray-800 rounded-2xl text-gray-400 dark:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-blue-500 hover:border-blue-200 dark:hover:border-blue-700 transition-all">
                                 <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploadingImage} />
                                 <ImageIcon className="w-8 h-8" />
                                 <span className="font-bold">{isUploadingImage ? "업로드 중..." : "화면 캡쳐 이미지 업로드"}</span>
-                                <span className="text-xs text-gray-300">실제 사용 화면을 공유해보세요</span>
+                                <span className="text-xs text-gray-300 dark:text-gray-500">실제 사용 화면을 공유해보세요</span>
                             </label>
                         )}
                     </div>
 
                     {/* Thumbnail */}
                     <div className="space-y-3">
-                        <label className="text-sm font-bold text-gray-500 ml-1">썸네일 이미지</label>
+                        <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">썸네일 이미지</label>
                         {thumbnail ? (
-                            <div className="relative rounded-2xl overflow-hidden border border-[#E5E5EA] shadow-inner group">
+                            <div className="relative rounded-2xl overflow-hidden border border-[#E5E5EA] dark:border-gray-800 shadow-inner group">
                                 <img src={thumbnail} alt="Thumbnail Prep" className="w-full aspect-video object-cover" />
                                 <button 
                                     onClick={generateThumbnail}
-                                    className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-black/80 transition-all opacity-0 group-hover:opacity-100"
+                                    className="absolute bottom-4 right-4 bg-black/60 dark:bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-black/80 dark:hover:bg-white/30 transition-all opacity-0 group-hover:opacity-100"
                                 >
                                     <Sparkles className="w-4 h-4" /> 다시 생성
                                 </button>
@@ -309,11 +309,11 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                             <button 
                                 onClick={generateThumbnail}
                                 disabled={isGenerating || (!title.trim() && !url.trim())}
-                                className="w-full aspect-video flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[#E5E5EA] rounded-2xl text-gray-400 hover:bg-gray-50 hover:text-blue-500 hover:border-blue-200 transition-all disabled:opacity-50"
+                                className="w-full aspect-video flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[#E5E5EA] dark:border-gray-800 rounded-2xl text-gray-400 dark:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-blue-500 hover:border-blue-200 dark:hover:border-blue-700 transition-all disabled:opacity-50"
                             >
                                 <Sparkles className="w-8 h-8" />
                                 <span className="font-bold">{isGenerating ? "생성 중..." : "AI 썸네일 자동 생성"}</span>
-                                <span className="text-xs text-gray-300">제목/url 기반으로 디자인됩니다</span>
+                                <span className="text-xs text-gray-300 dark:text-gray-500">제목/url 기반으로 디자인됩니다</span>
                             </button>
                         )}
                     </div>

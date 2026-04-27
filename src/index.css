@@ -9,41 +9,50 @@
 
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
   --font-display: "SF Pro Display", "Inter", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
   --font-rounded: "CookieRun-Black", "Noto Sans KR", sans-serif;
 }
 
-*, ::before, ::after {
-  box-sizing: border-box;
-}
+@layer base {
+  *, ::before, ::after {
+    box-sizing: border-box;
+  }
 
-html, body {
-  overflow-x: hidden;
-  width: 100%;
-  position: relative;
-  margin: 0;
-  padding: 0;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-}
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
 
-img {
-  max-width: 100%;
-  height: auto;
-  object-fit: cover;
-}
+  html.dark, .dark body {
+    background-color: #000000;
+    color: #F9FAFB;
+    color-scheme: dark;
+  }
 
-body {
-  font-family: var(--font-sans);
-  background-color: #FFFFFF;
-  color: #1C1C1E;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  body {
+    font-family: var(--font-sans);
+    background-color: #FFFFFF;
+    color: #1C1C1E;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 .card-border {
   border: 0.5px solid #E5E5EA;
+}
+
+.dark .card-border {
+  border: 0.5px solid #27272A;
 }
 

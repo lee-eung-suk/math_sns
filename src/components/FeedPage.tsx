@@ -132,11 +132,11 @@ export function FeedPage({
     }, [posts, debouncedQuery, domainFilter, gradeFilter, sortTab]);
 
     return (
-        <div className="flex flex-col h-full bg-white overflow-hidden">
+        <div className="flex flex-col h-full bg-white dark:bg-black overflow-hidden transition-colors duration-300">
             {/* Sticky Header with Title & Tabs */}
-            <div className="sticky top-0 bg-white/90 backdrop-blur-xl border-b border-gray-100 z-20">
-                <div className="pt-safe px-4 py-3 flex items-center justify-between border-b border-gray-50">
-                    <h2 className="text-xl font-black text-gray-900 tracking-tight">
+            <div className="sticky top-0 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 z-20 transition-colors duration-300">
+                <div className="pt-safe px-4 py-3 flex items-center justify-between border-b border-gray-50 dark:border-gray-900">
+                    <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
                         {isSearchMode ? '검색' : (sortTab === '전체' ? '홈' : sortTab)}
                     </h2>
                     {isSearchMode && (
@@ -149,7 +149,7 @@ export function FeedPage({
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="검색..."
-                                    className="w-full bg-gray-100 rounded-full py-1.5 pl-9 pr-4 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                                    className="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-full py-1.5 pl-9 pr-4 text-xs font-medium dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                                 />
                             </div>
                         </div>
@@ -163,11 +163,11 @@ export function FeedPage({
                             <button
                                 key={t}
                                 onClick={() => setSortTab(t)}
-                                className="flex-1 py-4 text-sm font-bold relative transition-colors hover:bg-gray-50"
+                                className="flex-1 py-4 text-sm font-bold relative transition-colors hover:bg-gray-50 dark:hover:bg-gray-900"
                             >
                                 <span className={cn(
                                     "relative z-10",
-                                    sortTab === t ? "text-gray-900" : "text-gray-500"
+                                    sortTab === t ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white"
                                 )}>
                                     {t}
                                 </span>
@@ -184,41 +184,41 @@ export function FeedPage({
             </div>
 
             {/* Secondary Filters (Collapsible or Small) */}
-            <div className="px-4 py-2 border-b border-gray-50 bg-white overflow-x-auto no-scrollbar flex gap-2">
+            <div className="px-4 py-2 border-b border-gray-50 dark:border-gray-900 bg-white dark:bg-black overflow-x-auto no-scrollbar flex gap-2 transition-colors duration-300">
                  <select 
                     value={gradeFilter} 
                     onChange={(e) => setGradeFilter(e.target.value as any)}
-                    className="p-1 px-2 text-[11px] font-bold bg-gray-50 rounded-lg border-none focus:ring-1 focus:ring-blue-500 outline-none"
+                    className="p-1 px-2 text-[11px] font-bold bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg border-none focus:ring-1 focus:ring-blue-500 outline-none"
                  >
                     {GRADES.map(g => <option key={g} value={g}>{g}</option>)}
                  </select>
                  <select 
                     value={domainFilter} 
                     onChange={(e) => setDomainFilter(e.target.value as any)}
-                    className="p-1 px-2 text-[11px] font-bold bg-gray-50 rounded-lg border-none focus:ring-1 focus:ring-blue-500 outline-none"
+                    className="p-1 px-2 text-[11px] font-bold bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg border-none focus:ring-1 focus:ring-blue-500 outline-none"
                  >
                     {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
                  </select>
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto" onClick={() => setShowRecent(false)}>
+            <div className="flex-1 overflow-y-auto bg-white dark:bg-black transition-colors duration-300" onClick={() => setShowRecent(false)}>
                 <div className="w-full box-border">
                     {isLoading ? (
-                        <div className="divide-y divide-gray-50">
+                        <div className="divide-y divide-gray-50 dark:divide-gray-900">
                             {[1, 2, 3, 4, 5, 6].map(i => (
                                 <div key={i} className="p-4 flex gap-3 animate-pulse">
-                                    <div className="w-12 h-12 rounded-full bg-gray-100 shrink-0" />
+                                    <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-900 shrink-0" />
                                     <div className="flex-1 space-y-2 py-1">
-                                        <div className="h-4 bg-gray-100 rounded w-1/4" />
-                                        <div className="h-3 bg-gray-100 rounded w-3/4" />
-                                        <div className="h-3 bg-gray-100 rounded w-1/2" />
+                                        <div className="h-4 bg-gray-100 dark:bg-gray-900 rounded w-1/4" />
+                                        <div className="h-3 bg-gray-100 dark:bg-gray-900 rounded w-3/4" />
+                                        <div className="h-3 bg-gray-100 dark:bg-gray-900 rounded w-1/2" />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : filteredPosts.length > 0 ? (
-                        <div className="flex flex-col w-full divide-y divide-gray-50">
+                        <div className="flex flex-col w-full divide-y divide-gray-50 dark:divide-gray-900">
                             {filteredPosts.map(post => (
                                 <PostCard 
                                     key={post.id} 
@@ -233,23 +233,23 @@ export function FeedPage({
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-280px)] text-center px-6">
-                            <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                            <div className="w-24 h-24 bg-gray-50 dark:bg-gray-900 rounded-full flex items-center justify-center mb-6 transition-colors">
                                 <span className="text-4xl text-gray-400">🔍</span>
                             </div>
-                            <h3 className="text-xl font-black text-gray-900 mb-2">도구를 찾지 못했어요</h3>
-                            <p className="text-gray-400 text-sm mb-8 max-w-[240px] leading-relaxed mx-auto font-medium">
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">도구를 찾지 못했어요</h3>
+                            <p className="text-gray-400 dark:text-gray-500 text-sm mb-8 max-w-[240px] leading-relaxed mx-auto font-medium">
                                 검색어나 필터를 변경해보거나,<br/>직접 새로운 도구를 첫 번째로 등록해보세요!
                             </p>
                             <div className="flex flex-col gap-3 w-full max-w-[200px]">
                                 <button 
                                     onClick={() => { setDomainFilter('전체'); setGradeFilter('전체'); setSearchQuery(''); setSortTab('전체'); }}
-                                    className="px-6 py-3 bg-gray-100 text-gray-900 rounded-full text-sm font-bold active:scale-95 transition-all"
+                                    className="px-6 py-3 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white rounded-full text-sm font-bold active:scale-95 transition-all"
                                 >
                                     필터 초기화
                                 </button>
                                 <button 
                                     onClick={() => window.dispatchEvent(new CustomEvent('open-upload-modal'))}
-                                    className="px-6 py-3 bg-blue-600 text-white rounded-full text-sm font-bold shadow-lg shadow-blue-100 active:scale-95 transition-all"
+                                    className="px-6 py-3 bg-blue-600 text-white rounded-full text-sm font-bold shadow-lg shadow-blue-100 dark:shadow-none active:scale-95 transition-all"
                                 >
                                     첫 도구 등록하기 +
                                 </button>

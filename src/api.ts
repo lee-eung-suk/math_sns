@@ -102,16 +102,22 @@ export const deleteComment = async (commentId: string): Promise<boolean> => {
   if (!supabase) return deleteMock();
   
   try {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('comments')
       .delete()
-      .or(`id.eq.${commentId},parent_id.eq.${commentId}`);
+      .or(`id.eq.${commentId},parent_id.eq.${commentId}`)
+      .select();
       
     if (error) {
       console.error('Error deleting comment:', error);
       if (error.message.includes('fetch')) return deleteMock();
       throw new Error(error.message);
     }
+    
+    if (!data || data.length === 0) {
+      throw new Error('Supabase 권한 부족: comments 테이블의 삭제(Delete) 권한이 허용되지 않았습니다.');
+    }
+    
     return true;
   } catch (e: any) {
     if (e.message?.includes('fetch')) return deleteMock();

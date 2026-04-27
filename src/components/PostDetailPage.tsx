@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Post, getPosts, incrementView, toggleLike, supabase } from '@/api';
-import { ChevronLeft, Eye, Heart, Share, ExternalLink, Triangle, Calculator, BarChart3, Activity, Puzzle, Calendar } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { Post, Comment, getPosts, getComments, createComment, incrementView, toggleLike, supabase } from '@/api';
+import { ChevronLeft, Eye, Heart, Share, ExternalLink, Triangle, Calculator, BarChart3, Activity, Puzzle, Calendar, MessageCircle, Send } from 'lucide-react';
 import { playLikeSound, cn, formatDate } from '@/lib/utils';
 import { motion } from 'motion/react';
 
@@ -53,8 +53,13 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
 
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [authorName, setAuthorName] = useState('');
+    const [commentContent, setCommentContent] = useState('');
+    const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+
     useEffect(() => {
-        const fetchPost = async () => {
+        const fetchPostAndComments = async () => {
             const allPosts = await getPosts();
             const found = allPosts.find(p => p.id === postId);
             if (found) {
@@ -62,17 +67,38 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
                 setLikeCount(found.like_count);
                 await incrementView(postId);
             }
+
+            const postComments = await getComments(postId);
+            setComments(postComments);
         };
-        fetchPost();
+        fetchPostAndComments();
 
         if (supabase) {
-            const channel = supabase
+            const postChannel = supabase
               .channel(`post-${postId}`)
               .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tools', filter: `id=eq.${postId}` }, 
-                (payload) => setPost(payload.new as Post))
+                (payload) => {
+                    setPost(payload.new as Post);
+                    setLikeCount((payload.new as Post).like_count);
+                })
               .subscribe();
+              
+            const commentsChannel = supabase
+              .channel(`comments-${postId}`)
+              .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: `post_id=eq.${postId}` }, 
+                (payload) => {
+                    setComments((prev) => {
+                        const newComment = payload.new as Comment;
+                        // Avoid duplicate if we just created it optimistically
+                        if (prev.some(c => c.id === newComment.id)) return prev;
+                        return [newComment, ...prev];
+                    });
+                })
+              .subscribe();
+
             return () => {
-                supabase.removeChannel(channel);
+                supabase.removeChannel(postChannel);
+                supabase.removeChannel(commentsChannel);
             };
         }
     }, [postId]);
@@ -88,6 +114,24 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
 
     const handleLink = () => {
         if (post) window.open(post.url, '_blank', 'noopener,noreferrer');
+    };
+
+    const handleCommentSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!commentContent.trim() || !post) return;
+
+        setIsSubmittingComment(true);
+        try {
+            const newComment = await createComment(post.id, commentContent, authorName);
+            if (newComment) {
+                setComments(prev => [newComment, ...prev]);
+                setCommentContent('');
+            }
+        } catch (err) {
+            alert('댓글 작성에 실패했습니다.');
+        } finally {
+            setIsSubmittingComment(false);
+        }
     };
 
     if (!post) return <div className="p-8 text-center text-gray-400 font-bold animate-pulse">도구 정보를 불러오는 중...</div>;
@@ -124,7 +168,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
             <div className="flex-1 overflow-y-auto pb-40 bg-white flex justify-center">
                 <div className="max-w-[700px] w-full sm:border-x border-gray-100 min-h-full">
                     {/* Content Section */}
-                    <div className="p-5 sm:p-8 space-y-6">
+                    <div className="p-5 sm:p-8 space-y-6 border-b border-gray-100">
                         
                         {/* Header / Author */}
                         <div className="flex items-center gap-3">
@@ -180,6 +224,10 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
                                     <Heart className={cn("w-4 h-4", liked ? "text-pink-500 fill-pink-500" : "text-gray-400")} />
                                     <span className="text-[13px] font-bold text-gray-500">{likeCount}</span>
                                 </div>
+                                <div className="flex items-center gap-1.5">
+                                    <MessageCircle className="w-4 h-4 text-gray-400" />
+                                    <span className="text-[13px] font-bold text-gray-500">{comments.length}</span>
+                                </div>
                             </div>
                         </div>
 
@@ -188,6 +236,81 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
                             <p className="text-[12px] sm:text-[13px] font-medium text-[#94A3B8]">
                                 경상북도교육청 창의융합 교사연구회 수(數)다방
                             </p>
+                        </div>
+                    </div>
+
+                    {/* Comments Section */}
+                    <div className="bg-gray-50 min-h-[300px] p-5 sm:p-8 space-y-6">
+                        <h3 className="font-bold gap-2 flex items-center text-gray-800">
+                            <MessageCircle className="w-5 h-5 text-gray-400" />
+                            댓글 {comments.length}개
+                        </h3>
+
+                        {/* Comment Input */}
+                        <form onSubmit={handleCommentSubmit} className="bg-white border text-sm border-gray-200 rounded-[16px] p-4 shadow-sm space-y-3">
+                            <input 
+                                type="text" 
+                                placeholder="이름 (선택)" 
+                                value={authorName}
+                                onChange={(e) => setAuthorName(e.target.value)}
+                                className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[13px] font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <textarea 
+                                placeholder="답글 게시하기" 
+                                value={commentContent}
+                                onChange={(e) => setCommentContent(e.target.value)}
+                                className="w-full bg-transparent resize-none h-20 text-[14px] leading-relaxed focus:outline-none"
+                                required
+                            />
+                            <div className="flex justify-end pt-2 border-t border-gray-100">
+                                <button 
+                                    type="submit"
+                                    disabled={!commentContent.trim() || isSubmittingComment}
+                                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:bg-blue-600 text-white font-bold text-[13px] px-5 py-2 rounded-full transition-colors flex items-center gap-1.5"
+                                >
+                                    <Send className="w-3.5 h-3.5" />
+                                    작성
+                                </button>
+                            </div>
+                        </form>
+
+                        {/* Comment List */}
+                        <div className="space-y-0 relative border-t border-gray-100 mt-4 pt-2">
+                            {comments.map((comment) => (
+                                <div key={comment.id} className="py-4 border-b border-gray-100 flex gap-3 px-1">
+                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                                        <span className="text-blue-600 font-bold text-sm">
+                                            {(comment.author_name || '익명').charAt(0)}
+                                        </span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="font-bold text-[14px] text-gray-900 truncate">
+                                                {comment.author_name || '익명'}
+                                            </span>
+                                            <span className="text-[13px] text-gray-400 shrink-0">
+                                                {formatDate(comment.created_at)}
+                                            </span>
+                                        </div>
+                                        <p className="text-[14px] text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                                            {comment.content}
+                                        </p>
+                                        <div className="flex items-center gap-4 mt-2">
+                                            <button className="flex items-center gap-1 text-gray-400 hover:text-blue-500 transition-colors">
+                                                <Heart className="w-3.5 h-3.5" />
+                                            </button>
+                                            <button className="flex items-center gap-1 text-gray-400 hover:text-blue-500 transition-colors text-[12px] font-bold">
+                                                답글
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {comments.length === 0 && (
+                                <div className="text-center py-10 text-gray-400 font-medium text-[14px]">
+                                    아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

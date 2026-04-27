@@ -21,8 +21,77 @@ export interface Post {
   updated_at?: string;
 }
 
-// In-memory mock data
+export interface Comment {
+  id: string;
+  post_id: string;
+  content: string;
+  author_name: string;
+  parent_id?: string;
+  created_at: string;
+}
+
+let mockComments: Comment[] = [];
 let mockPosts: Post[] = [];
+
+export const getComments = async (postId: string): Promise<Comment[]> => {
+  if (!supabase) {
+    return mockComments.filter(c => c.post_id === postId).sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }
+  try {
+    const { data, error } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('post_id', postId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Error fetching comments:', error);
+      return [];
+    }
+    return data || [];
+  } catch (e) {
+    console.error('Network error fetching comments:', e);
+    return [];
+  }
+};
+
+export const createComment = async (postId: string, content: string, authorName: string, parentId?: string): Promise<Comment | null> => {
+  const commentData = {
+      post_id: postId,
+      content,
+      author_name: authorName || '익명',
+      parent_id: parentId || null
+  };
+
+  const saveMock = () => {
+    const newComment: Comment = {
+      ...commentData,
+      id: Math.random().toString(36).substring(7),
+      created_at: new Date().toISOString()
+    };
+    mockComments = [newComment, ...mockComments];
+    return newComment;
+  };
+
+  if (!supabase) return saveMock();
+
+  try {
+    const { data, error } = await supabase
+      .from('comments')
+      .insert([commentData])
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error creating comment:', error);
+      if (error.message.includes('fetch')) return saveMock();
+      throw new Error(error.message);
+    }
+    return data;
+  } catch (e: any) {
+    if (e.message?.includes('fetch')) return saveMock();
+    throw e;
+  }
+};
 
 export const getPosts = async (filters?: { domain?: Domain | '전체', grade?: Grade | '전체' }): Promise<Post[]> => {
   const getMockResult = () => {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Post, Domain, Grade, createPost, updatePost, supabase } from '@/api';
 import { cn, playUploadSound } from '@/lib/utils';
-import { Link as LinkIcon, Sparkles, X, Check } from 'lucide-react';
+import { Link as LinkIcon, Sparkles, X, Check, Image as ImageIcon } from 'lucide-react';
 
 export function PostWritePage({ onSuccess, onCancel, initialData }: { 
     onSuccess: () => void; 
@@ -14,11 +14,41 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
     const [selectedCategories, setSelectedCategories] = useState<Domain[]>(initialData?.categories || []);
     const [selectedGrades, setSelectedGrades] = useState<Grade[]>(initialData?.grades || []);
     const [thumbnail, setThumbnail] = useState(initialData?.thumbnail || '');
+    const [imageUrl, setImageUrl] = useState(initialData?.image_url || '');
     const [isGenerating, setIsGenerating] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
-    
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+
     const DOMAINS: Domain[] = ['수와 연산', '변화와 관계', '도형과 측정', '자료와 가능성', '기타'];
     const GRADES: Grade[] = ['1학년', '2학년', '3학년', '4학년', '5학년', '6학년', '공통'];
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        setIsUploadingImage(true);
+        try {
+            if (!supabase) throw new Error("Supabase is not configured.");
+            const fileName = `img_${Date.now()}_${file.name}`;
+            const { error } = await supabase.storage.from('images').upload(fileName, file);
+            if (error) {
+                // fallback to thumbnails bucket if images bucket doesn't exist
+                const fallback = await supabase.storage.from('thumbnails').upload(fileName, file);
+                if (fallback.error) throw fallback.error;
+                const { data } = supabase.storage.from('thumbnails').getPublicUrl(fileName);
+                setImageUrl(data.publicUrl);
+            } else {
+                const { data } = supabase.storage.from('images').getPublicUrl(fileName);
+                setImageUrl(data.publicUrl);
+            }
+        } catch (err: any) {
+            console.error("Image upload failed", err);
+            alert(`이미지 업로드에 실패했습니다. (${err.message || '알 수 없는 오류'})`);
+        } finally {
+            setIsUploadingImage(false);
+        }
+    };
+
 
     const toggleDomain = (d: Domain) => {
         setSelectedCategories(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d]);
@@ -115,7 +145,8 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                 url: url.trim(),
                 categories: selectedCategories.length > 0 ? selectedCategories : ['기타'],
                 grades: selectedGrades.length > 0 ? selectedGrades : ['공통'],
-                thumbnail: thumbnail || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400'
+                thumbnail: thumbnail || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400',
+                image_url: imageUrl || undefined
             };
 
             if (initialData) {
@@ -234,6 +265,29 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
                                 ))}
                             </div>
                         </div>
+                    </div>
+
+                    {/* Body Image Upload */}
+                    <div className="space-y-3">
+                        <label className="text-sm font-bold text-gray-500 ml-1">본문 캡쳐 이미지 (옵션)</label>
+                        {imageUrl ? (
+                            <div className="relative rounded-2xl overflow-hidden border border-[#E5E5EA] shadow-inner group">
+                                <img src={imageUrl} alt="Uploaded prep" className="w-full aspect-video object-cover" />
+                                <button 
+                                    onClick={() => setImageUrl('')}
+                                    className="absolute bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-red-600 transition-all opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+                                >
+                                    <X className="w-4 h-4" /> 삭제
+                                </button>
+                            </div>
+                        ) : (
+                            <label className="w-full aspect-video cursor-pointer flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[#E5E5EA] rounded-2xl text-gray-400 hover:bg-gray-50 hover:text-blue-500 hover:border-blue-200 transition-all">
+                                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploadingImage} />
+                                <ImageIcon className="w-8 h-8" />
+                                <span className="font-bold">{isUploadingImage ? "업로드 중..." : "화면 캡쳐 이미지 업로드"}</span>
+                                <span className="text-xs text-gray-300">실제 사용 화면을 공유해보세요</span>
+                            </label>
+                        )}
                     </div>
 
                     {/* Thumbnail */}

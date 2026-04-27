@@ -149,21 +149,16 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
                         </p>
 
                         {/* Main Image */}
-                        <div className="w-full rounded-[16px] overflow-hidden border border-gray-100 shadow-sm relative bg-gray-50 flex items-center justify-center">
-                            {post.image_url ? (
+                        {post.image_url && (
+                            <div className="w-full rounded-[16px] overflow-hidden border border-gray-100 shadow-sm relative bg-gray-50 flex items-center justify-center my-4">
                                 <img 
                                     src={post.image_url} 
                                     alt={post.title} 
-                                    className="w-full h-auto max-h-[60vh] object-cover" 
+                                    className="w-full h-auto max-h-[220px] object-cover" 
                                     referrerPolicy="no-referrer"
                                 />
-                            ) : (
-                                <div className={cn("w-full h-[200px] sm:h-[300px] flex items-center justify-center bg-gradient-to-br", styles.bg)}>
-                                     <styles.icon className={cn("w-20 h-20 opacity-[0.15]", styles.text.replace('text-', 'text-'))} />
-                                     <span className={cn("absolute bottom-6 font-bold text-sm opacity-50", styles.text)}>이미지가 없습니다</span>
-                                </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
 
                         {/* Action Button */}
                         <button 

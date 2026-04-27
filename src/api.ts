@@ -93,6 +93,32 @@ export const createComment = async (postId: string, content: string, authorName:
   }
 };
 
+export const deleteComment = async (commentId: string): Promise<boolean> => {
+  const deleteMock = () => {
+    mockComments = mockComments.filter(c => c.id !== commentId && c.parent_id !== commentId);
+    return true;
+  };
+  
+  if (!supabase) return deleteMock();
+  
+  try {
+    const { error } = await supabase
+      .from('comments')
+      .delete()
+      .or(`id.eq.${commentId},parent_id.eq.${commentId}`);
+      
+    if (error) {
+      console.error('Error deleting comment:', error);
+      if (error.message.includes('fetch')) return deleteMock();
+      throw new Error(error.message);
+    }
+    return true;
+  } catch (e: any) {
+    if (e.message?.includes('fetch')) return deleteMock();
+    throw e;
+  }
+};
+
 export const getPosts = async (filters?: { domain?: Domain | '전체', grade?: Grade | '전체' }): Promise<Post[]> => {
   const getMockResult = () => {
     let result = [...mockPosts];
@@ -227,7 +253,7 @@ export const toggleLike = async (postId: string, liked: boolean): Promise<void> 
 }
 
 export const updatePost = async (postId: string, postData: Partial<Omit<Post, 'id' | 'created_at' | 'updated_at'>>) => {
-  const dataWithUpdate = { ...postData, updated_at: new Date().toISOString() };
+  const dataWithUpdate = { ...postData };
   
   const mockUpdate = () => {
     const index = mockPosts.findIndex(p => p.id === postId);

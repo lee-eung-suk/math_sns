@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Post, Comment, getPosts, getComments, createComment, incrementView, toggleLike, supabase } from '@/api';
-import { ChevronLeft, Eye, Heart, Share, ExternalLink, Triangle, Calculator, BarChart3, Activity, Puzzle, Calendar, MessageCircle, Send } from 'lucide-react';
+import { Post, Comment, getPosts, getComments, createComment, deleteComment, incrementView, toggleLike, supabase } from '@/api';
+import { ChevronLeft, Eye, Heart, Share, ExternalLink, Triangle, Calculator, BarChart3, Activity, Puzzle, Calendar, MessageCircle, Send, Trash2 } from 'lucide-react';
 import { playLikeSound, cn, formatDate } from '@/lib/utils';
 import { motion } from 'motion/react';
 
@@ -58,6 +58,15 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
     const [commentContent, setCommentContent] = useState('');
     const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
+    const [replyToId, setReplyToId] = useState<string | null>(null);
+    const [replyAuthorName, setReplyAuthorName] = useState('');
+    const [replyContent, setReplyContent] = useState('');
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        setIsAdmin(localStorage.getItem('isAdmin') === 'true');
+    }, []);
+
     useEffect(() => {
         const fetchPostAndComments = async () => {
             const allPosts = await getPosts();
@@ -85,14 +94,17 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
               
             const commentsChannel = supabase
               .channel(`comments-${postId}`)
-              .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: `post_id=eq.${postId}` }, 
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'comments', filter: `post_id=eq.${postId}` }, 
                 (payload) => {
-                    setComments((prev) => {
-                        const newComment = payload.new as Comment;
-                        // Avoid duplicate if we just created it optimistically
-                        if (prev.some(c => c.id === newComment.id)) return prev;
-                        return [newComment, ...prev];
-                    });
+                    if (payload.eventType === 'INSERT') {
+                        setComments((prev) => {
+                            const newComment = payload.new as Comment;
+                            if (prev.some(c => c.id === newComment.id)) return prev;
+                            return [newComment, ...prev].sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                        });
+                    } else if (payload.eventType === 'DELETE') {
+                        setComments((prev) => prev.filter(c => c.id !== payload.old.id && c.parent_id !== payload.old.id));
+                    }
                 })
               .subscribe();
 
@@ -124,7 +136,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
         try {
             const newComment = await createComment(post.id, commentContent, authorName);
             if (newComment) {
-                setComments(prev => [newComment, ...prev]);
+                setComments(prev => [newComment, ...prev].sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
                 setCommentContent('');
             }
         } catch (err) {
@@ -134,9 +146,40 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
         }
     };
 
+    const handleReplySubmit = async (e: React.FormEvent, parentId: string) => {
+        e.preventDefault();
+        if (!replyContent.trim() || !post) return;
+
+        setIsSubmittingComment(true);
+        try {
+            const newComment = await createComment(post.id, replyContent, replyAuthorName, parentId);
+            if (newComment) {
+                setComments(prev => [newComment, ...prev].sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+                setReplyContent('');
+                setReplyToId(null);
+            }
+        } catch (err) {
+            alert('답글 작성에 실패했습니다.');
+        } finally {
+            setIsSubmittingComment(false);
+        }
+    };
+
+    const handleDeleteComment = async (id: string) => {
+        if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
+        try {
+            await deleteComment(id);
+            setComments(prev => prev.filter(c => c.id !== id && c.parent_id !== id));
+        } catch (e: any) {
+            alert('삭제 실패: ' + e.message);
+        }
+    };
+
     if (!post) return <div className="p-8 text-center text-gray-400 font-bold animate-pulse">도구 정보를 불러오는 중...</div>;
 
     const styles = getCategoryStyles(post.categories);
+
+    const parentComments = comments.filter(c => !c.parent_id);
 
     return (
         <motion.div 
@@ -276,7 +319,9 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
 
                         {/* Comment List */}
                         <div className="space-y-0 relative border-t border-gray-100 mt-4 pt-2">
-                            {comments.map((comment) => (
+                            {parentComments.map((comment) => {
+                                const replies = comments.filter(c => c.parent_id === comment.id);
+                                return (
                                 <div key={comment.id} className="py-4 border-b border-gray-100 flex gap-3 px-1">
                                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
                                         <span className="text-blue-600 font-bold text-sm">
@@ -284,13 +329,20 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
                                         </span>
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="font-bold text-[14px] text-gray-900 truncate">
-                                                {comment.author_name || '익명'}
-                                            </span>
-                                            <span className="text-[13px] text-gray-400 shrink-0">
-                                                {formatDate(comment.created_at)}
-                                            </span>
+                                        <div className="flex items-center justify-between mb-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-[14px] text-gray-900 truncate">
+                                                    {comment.author_name || '익명'}
+                                                </span>
+                                                <span className="text-[13px] text-gray-400 shrink-0">
+                                                    {formatDate(comment.created_at)}
+                                                </span>
+                                            </div>
+                                            {isAdmin && (
+                                                <button onClick={() => handleDeleteComment(comment.id)} className="text-gray-300 hover:text-red-500 transition-colors p-1">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
                                         </div>
                                         <p className="text-[14px] text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
                                             {comment.content}
@@ -299,14 +351,88 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
                                             <button className="flex items-center gap-1 text-gray-400 hover:text-blue-500 transition-colors">
                                                 <Heart className="w-3.5 h-3.5" />
                                             </button>
-                                            <button className="flex items-center gap-1 text-gray-400 hover:text-blue-500 transition-colors text-[12px] font-bold">
+                                            <button 
+                                                onClick={() => setReplyToId(replyToId === comment.id ? null : comment.id)}
+                                                className="flex items-center gap-1 text-gray-400 hover:text-blue-500 transition-colors text-[12px] font-bold"
+                                            >
                                                 답글
                                             </button>
                                         </div>
+
+                                        {/* Reply Input Box */}
+                                        {replyToId === comment.id && (
+                                            <form onSubmit={(e) => handleReplySubmit(e, comment.id)} className="bg-white border text-sm border-gray-200 rounded-xl p-3 shadow-sm space-y-2 mt-3 mb-2 w-full">
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="이름 (선택)" 
+                                                    value={replyAuthorName}
+                                                    onChange={(e) => setReplyAuthorName(e.target.value)}
+                                                    className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[13px] font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                />
+                                                <textarea 
+                                                    placeholder="답글 내용을 입력하세요" 
+                                                    value={replyContent}
+                                                    onChange={(e) => setReplyContent(e.target.value)}
+                                                    className="w-full bg-transparent resize-none h-14 text-[13px] leading-relaxed focus:outline-none"
+                                                    required
+                                                />
+                                                <div className="flex justify-end pt-2 border-t border-gray-100">
+                                                    <button 
+                                                        type="submit"
+                                                        disabled={!replyContent.trim() || isSubmittingComment}
+                                                        className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:bg-blue-600 text-white font-bold text-[12px] px-4 py-1.5 rounded-full transition-colors flex items-center gap-1"
+                                                    >
+                                                        <Send className="w-3 h-3" />
+                                                        작성
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        )}
+
+                                        {/* Replies List */}
+                                        {replies.length > 0 && (
+                                            <div className="space-y-3 mt-4">
+                                                {replies.map(reply => (
+                                                    <div key={reply.id} className="flex gap-3 bg-[#f8f9fb] p-3 rounded-2xl ml-2 sm:ml-6 ml-4">
+                                                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                                                            <span className="text-indigo-600 font-bold text-xs">
+                                                                {(reply.author_name || '익명').charAt(0)}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center justify-between mb-0.5">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="font-bold text-[13px] text-gray-900 truncate">
+                                                                        {reply.author_name || '익명'}
+                                                                    </span>
+                                                                    <span className="text-[12px] text-gray-400 shrink-0">
+                                                                        {formatDate(reply.created_at)}
+                                                                    </span>
+                                                                </div>
+                                                                {isAdmin && (
+                                                                    <button onClick={() => handleDeleteComment(reply.id)} className="text-gray-300 hover:text-red-500 transition-colors p-1">
+                                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-[13px] text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                                                                {reply.content}
+                                                            </p>
+                                                            <div className="flex items-center gap-4 mt-1.5">
+                                                                <button className="flex items-center gap-1 text-gray-400 hover:text-blue-500 transition-colors">
+                                                                    <Heart className="w-3 h-3" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                            ))}
-                            {comments.length === 0 && (
+                                );
+                            })}
+                            {parentComments.length === 0 && (
                                 <div className="text-center py-10 text-gray-400 font-medium text-[14px]">
                                     아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!
                                 </div>

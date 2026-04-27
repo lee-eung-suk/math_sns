@@ -29,7 +29,9 @@ export function PostWritePage({ onSuccess, onCancel, initialData }: {
         setIsUploadingImage(true);
         try {
             if (!supabase) throw new Error("Supabase is not configured.");
-            const fileName = `img_${Date.now()}_${file.name}`;
+            const ext = file.name.split('.').pop() || 'png';
+            const safeName = file.name.split('.')[0].replace(/[^a-zA-Z0-9_\-]/g, '');
+            const fileName = `img_${Date.now()}_${safeName || 'upload'}.${ext}`;
             const { error } = await supabase.storage.from('images').upload(fileName, file);
             if (error) {
                 // fallback to thumbnails bucket if images bucket doesn't exist

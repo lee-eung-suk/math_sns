@@ -13,6 +13,8 @@ export interface Post {
   categories: Domain[];
   grades: Grade[];
   thumbnail: string;
+  image_url?: string;
+  thumbnail_url?: string;
   view_count: number;
   like_count: number;
   created_at: string;

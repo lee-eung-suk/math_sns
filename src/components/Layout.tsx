@@ -47,8 +47,8 @@ export function Layout({ children, currentTab, isAdmin, onLoginClick, onLogoutCl
                         referrerPolicy="no-referrer"
                     />
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-[30px] font-extrabold text-[#2563EB] tracking-[-0.03em] leading-[1.2] font-rounded drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-                            수다방
+                        <h1 className="text-[30px] font-black text-[#2563EB] tracking-[-0.03em] leading-[1.2] font-rounded drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                            수다방 SNS
                         </h1>
                         <p className="text-[14px] font-bold text-[#94A3B8] leading-tight">수학 수업 도구 모음</p>
                     </div>
@@ -110,8 +110,8 @@ export function Layout({ children, currentTab, isAdmin, onLoginClick, onLogoutCl
                             referrerPolicy="no-referrer"
                         />
                         <div className="flex flex-col items-center gap-1">
-                            <h1 className="text-[clamp(24px,7vw,32px)] font-extrabold text-[#2563EB] tracking-[-0.03em] leading-[1.2] font-rounded drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-                                수다방
+                            <h1 className="text-[clamp(24px,7vw,32px)] font-black text-[#2563EB] tracking-[-0.03em] leading-[1.2] font-rounded drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                                수다방 SNS
                             </h1>
                             <p className="text-[clamp(13px,3.5vw,15px)] font-bold text-[#94A3B8]">수학 수업 도구 모음</p>
                         </div>
@@ -143,7 +143,7 @@ export function Layout({ children, currentTab, isAdmin, onLoginClick, onLogoutCl
                     )}
                     
                     <footer className="px-4 text-[11px] text-gray-400 font-bold leading-relaxed">
-                        © 2026 수다방 (Sudabang)
+                        ©경상북도교육청 창의융합 교사연구회 수(數)다방
                     </footer>
                 </aside>
             </main>

@@ -105,11 +105,12 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
             {/* Header */}
             <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-gray-100 flex items-center justify-between p-4 pt-safe z-30">
                 <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors">
-                    <ChevronLeft className="w-6 h-6" />
+                    <ChevronLeft className="w-6 h-6 text-gray-700" />
                 </button>
-                <div className="flex-1 px-4 text-center">
-                    <span className="text-[10px] font-black text-gray-400 tracking-widest uppercase">도구 상세 정보</span>
-                    <h2 className="text-sm font-black text-gray-900 truncate tracking-tight">{post.title}</h2>
+                <div className="flex-1 px-4 text-center flex justify-center items-center">
+                    <h1 className="text-[clamp(20px,6vw,24px)] font-black text-[#2563EB] tracking-[-0.03em] leading-none font-rounded drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                        수다방 SNS
+                    </h1>
                 </div>
                 <button 
                     onClick={() => navigator.share && navigator.share({ title: post.title, url: post.url })}
@@ -121,67 +122,77 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
 
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto pb-40 bg-white flex justify-center">
-                <div className="max-w-[700px] w-full border-x border-gray-100 min-h-full">
-                    {/* Hero Area */}
-                    <div className={cn(
-                        "w-full h-[240px] sm:h-[340px] relative flex items-center justify-center overflow-hidden bg-gradient-to-br",
-                        styles.bg
-                    )}>
-                        <div className={cn("w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center shadow-2xl transition-transform hover:scale-105 bg-white")}>
-                            <styles.icon className={cn("w-12 h-12 sm:w-16 h-16", styles.text.replace('text-', 'text-'))} strokeWidth={2.5} />
-                        </div>
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05]">
-                            <span className="text-[180px] font-black tracking-tighter transform -rotate-12 translate-y-10">
-                                {styles.symbol}
-                            </span>
-                        </div>
-                    </div>
-
+                <div className="max-w-[700px] w-full sm:border-x border-gray-100 min-h-full">
                     {/* Content Section */}
-                    <div className="p-8 sm:p-12 space-y-10">
-                        <div className="space-y-6">
-                            <div className="flex flex-wrap gap-2">
-                                {post.categories.map(d => (
-                                    <span key={d} className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[11px] font-black tracking-widest uppercase">
-                                        #{d}
-                                    </span>
-                                ))}
-                                {post.grades.map(g => (
-                                    <span key={g} className="px-3 py-1 bg-gray-50 text-gray-400 border border-gray-100 rounded-full text-[11px] font-bold">
-                                        {g}
-                                    </span>
-                                ))}
+                    <div className="p-5 sm:p-8 space-y-6">
+                        
+                        {/* Header / Author */}
+                        <div className="flex items-center gap-3">
+                            <div className={cn("w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br shadow-sm", styles.bg)}>
+                                <styles.icon className={cn("w-6 h-6", styles.text.replace('text-', 'text-'))} strokeWidth={2.5} />
                             </div>
-                            
-                            <h1 className="text-3xl sm:text-4xl font-black text-[#1C1C1E] leading-[1.1] tracking-tighter">
-                                {post.title}
-                            </h1>
-                            <p className="text-lg leading-relaxed text-gray-700 whitespace-pre-wrap font-medium tracking-tight">
-                                {post.description}
-                            </p>
+                            <div>
+                                <h2 className="text-[20px] sm:text-[24px] font-black text-[#1C1C1E] tracking-tight leading-tight">
+                                    {post.title}
+                                </h2>
+                                <div className="flex gap-2 mt-1 flex-wrap">
+                                    <span className="text-[13px] font-bold text-gray-400">
+                                        #{post.categories[0] || '기타'} · {post.grades[0] || '공통'}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
+                        {/* Description Text */}
+                        <p className="text-[15px] sm:text-[17px] leading-relaxed text-[#333333] whitespace-pre-wrap font-medium tracking-tight px-1">
+                            {post.description}
+                        </p>
+
+                        {/* Main Image */}
+                        <div className="w-full rounded-[16px] overflow-hidden border border-gray-100 shadow-sm relative bg-gray-50 flex items-center justify-center">
+                            {post.image_url ? (
+                                <img 
+                                    src={post.image_url} 
+                                    alt={post.title} 
+                                    className="w-full h-auto max-h-[60vh] object-cover" 
+                                    referrerPolicy="no-referrer"
+                                />
+                            ) : (
+                                <div className={cn("w-full h-[200px] sm:h-[300px] flex items-center justify-center bg-gradient-to-br", styles.bg)}>
+                                     <styles.icon className={cn("w-20 h-20 opacity-[0.15]", styles.text.replace('text-', 'text-'))} />
+                                     <span className={cn("absolute bottom-6 font-bold text-sm opacity-50", styles.text)}>이미지가 없습니다</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Action Button */}
                         <button 
                             onClick={handleLink}
-                            className="group w-full py-5 flex items-center justify-center gap-3 bg-[#1C1C1E] text-white rounded-full font-black text-xl shadow-2xl shadow-blue-100 hover:bg-black transition-all active:scale-[0.98]"
+                            className="w-full py-4 flex items-center justify-center gap-2 bg-[#2563EB] text-white rounded-[16px] font-bold text-[16px] shadow-sm hover:bg-blue-700 transition-colors active:scale-[0.98]"
                         >
-                            <ExternalLink className="w-6 h-6 transition-transform group-hover:scale-110" />
                             도구 바로가기
                         </button>
 
-                        <div className="flex items-center gap-10 py-6 border-y border-gray-100 flex-wrap">
-                            <div className="flex items-center gap-2.5">
-                                <Eye className="w-5 h-5 text-gray-400" />
-                                <span className="text-sm font-black text-gray-900">{post.view_count.toLocaleString()} <span className="text-gray-400 font-bold">조회</span></span>
+                        {/* Timestamp & Stats */}
+                        <div className="flex items-center justify-between py-4 border-b border-gray-100 flex-wrap px-1">
+                            <span className="text-[13px] font-medium text-gray-400">{formatDate(post.created_at)}</span>
+                            <div className="flex gap-4">
+                                <div className="flex items-center gap-1.5">
+                                    <Eye className="w-4 h-4 text-gray-400" />
+                                    <span className="text-[13px] font-bold text-gray-500">{post.view_count.toLocaleString()}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <Heart className={cn("w-4 h-4", liked ? "text-pink-500 fill-pink-500" : "text-gray-400")} />
+                                    <span className="text-[13px] font-bold text-gray-500">{likeCount}</span>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2.5">
-                                <Heart className="w-5 h-5 text-gray-400" />
-                                <span className="text-sm font-black text-gray-900">{likeCount} <span className="text-gray-400 font-bold">저장</span></span>
-                            </div>
-                            <div className="flex items-center gap-2.5">
-                                <Calendar className="w-5 h-5 text-gray-400" />
-                                <span className="text-sm font-black text-gray-900">{formatDate(post.created_at)} <span className="text-gray-400 font-bold">등록</span></span>
-                            </div>
+                        </div>
+
+                        {/* Footer Owner */}
+                        <div className="pt-2 px-1">
+                            <p className="text-[12px] sm:text-[13px] font-medium text-[#94A3B8]">
+                                경상북도교육청 창의융합 교사연구회 수(數)다방
+                            </p>
                         </div>
                     </div>
                 </div>

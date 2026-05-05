@@ -51,7 +51,7 @@ export function Layout({ children, currentTab, isAdmin, isDarkMode, onToggleDark
                             <span>CAFE</span>
                         </div>
                     </div>
-                    <p className="text-[10px] sm:text-[11px] text-[#9ca3af] font-normal leading-[1.4] mt-0.5 break-keep cursor-default">
+                    <p className="text-[10px] sm:text-[11px] text-[#9ca3af] font-normal leading-[1.4] mt-0.5 break-keep break-words whitespace-normal max-w-[160px] cursor-default" style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}>
                         ©경상북도교육청 창의융합 교사연구회 수(數)다방
                     </p>
                 </div>
@@ -126,7 +126,7 @@ export function Layout({ children, currentTab, isAdmin, isDarkMode, onToggleDark
                                     <span>CAFE</span>
                                 </div>
                             </div>
-                            <p className="text-[9.5px] text-[#9ca3af] font-normal leading-[1.4] break-keep cursor-default">
+                            <p className="text-[9.5px] text-[#9ca3af] font-normal leading-[1.4] break-keep break-words whitespace-normal cursor-default" style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}>
                                 ©경상북도교육청 창의융합 교사연구회 수(數)다방
                             </p>
                         </div>

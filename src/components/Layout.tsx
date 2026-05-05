@@ -41,18 +41,15 @@ export function Layout({ children, currentTab, isAdmin, isDarkMode, onToggleDark
         <div className="min-h-screen bg-white dark:bg-black text-[#1C1C1E] dark:text-gray-100 font-sans flex flex-col lg:flex-row transition-colors duration-300">
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex flex-col w-64 border-r border-[#E5E5EA] dark:border-gray-800 p-6 fixed h-full bg-white dark:bg-black z-10 space-y-8">
-                <div onClick={() => handleTabClick('home')} className="cursor-pointer group flex flex-col gap-3">
-                    <img 
-                        src="https://i.imgur.com/9zpqJiC.png" 
-                        alt="수다방 로고" 
-                        className="w-40 h-auto rounded-[16px] transition-transform group-hover:scale-[1.02]"
-                        referrerPolicy="no-referrer"
-                    />
-                    <div className="flex flex-col gap-1">
-                        <h1 className="text-[30px] font-black text-[#2563EB] tracking-[-0.03em] leading-[1.2] font-rounded drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-                            수다방 SNS
-                        </h1>
-                        <p className="text-[14px] font-bold text-[#94A3B8] leading-tight">수학 수업 도구 모음</p>
+                <div onClick={() => handleTabClick('home')} className="cursor-pointer group flex flex-col gap-3 py-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 transition-transform group-hover:scale-[1.02]">
+                        <span className="font-black font-serif text-[38px] text-[#111] dark:text-white leading-none">
+                            M
+                        </span>
+                        <div className="flex flex-col justify-center text-[14px] font-semibold tracking-[0.08em] leading-[1.1] text-gray-600 dark:text-gray-400">
+                            <span>ATH</span>
+                            <span>CAFE</span>
+                        </div>
                     </div>
                 </div>
                 <nav className="flex-1 space-y-2">
@@ -115,18 +112,15 @@ export function Layout({ children, currentTab, isAdmin, isDarkMode, onToggleDark
             <main className="flex-1 lg:ml-64 pb-24 lg:pb-0 min-h-screen border-r border-[#E5E5EA] dark:border-gray-800 w-full min-w-0 bg-white dark:bg-black relative flex justify-center transition-colors duration-300">
                 <div className="w-full lg:max-w-[700px] flex flex-col border-r border-[#E5E5EA] dark:border-gray-800">
                     {/* Mobile Brand Area */}
-                    <div className="lg:hidden w-full flex flex-col items-center gap-4 py-8 px-4 border-b border-[#E5E5EA] dark:border-gray-800">
-                        <img 
-                            src="https://i.imgur.com/9zpqJiC.png" 
-                            alt="수다방 로고" 
-                            className="w-[85%] max-w-[320px] h-auto rounded-[16px]"
-                            referrerPolicy="no-referrer"
-                        />
-                        <div className="flex flex-col items-center gap-1">
-                            <h1 className="text-[clamp(24px,7vw,32px)] font-black text-[#2563EB] tracking-[-0.03em] leading-[1.2] font-rounded drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-                                수다방 SNS
-                            </h1>
-                            <p className="text-[clamp(13px,3.5vw,15px)] font-bold text-[#94A3B8]">수학 수업 도구 모음</p>
+                    <div className="lg:hidden w-full flex flex-col items-center justify-center py-6 px-4 border-b border-[#E5E5EA] dark:border-gray-800">
+                        <div onClick={() => handleTabClick('home')} className="flex items-center gap-1.5 cursor-pointer">
+                            <span className="font-black font-serif text-[28px] text-[#111] dark:text-white leading-none">
+                                M
+                            </span>
+                            <div className="flex flex-col justify-center text-[11px] font-semibold tracking-[0.08em] leading-[1.1] text-gray-600 dark:text-gray-400">
+                                <span>ATH</span>
+                                <span>CAFE</span>
+                            </div>
                         </div>
                     </div>
                     {children}

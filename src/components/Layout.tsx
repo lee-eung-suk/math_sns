@@ -41,8 +41,8 @@ export function Layout({ children, currentTab, isAdmin, isDarkMode, onToggleDark
         <div className="min-h-screen bg-white dark:bg-black text-[#1C1C1E] dark:text-gray-100 font-sans flex flex-col lg:flex-row transition-colors duration-300">
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex flex-col w-64 border-r border-[#E5E5EA] dark:border-gray-800 p-6 fixed h-full bg-white dark:bg-black z-10 space-y-8">
-                <div onClick={() => handleTabClick('home')} className="cursor-pointer group flex flex-col gap-3 py-2">
-                    <div className="flex items-center gap-1.5 sm:gap-2 transition-transform group-hover:scale-[1.02]">
+                <div className="flex flex-col gap-1 py-2">
+                    <div onClick={() => handleTabClick('home')} className="cursor-pointer group flex w-max items-center gap-1.5 sm:gap-2 transition-transform hover:scale-[1.02]">
                         <span className="font-black font-serif text-[38px] text-[#111] dark:text-white leading-none">
                             M
                         </span>
@@ -51,6 +51,9 @@ export function Layout({ children, currentTab, isAdmin, isDarkMode, onToggleDark
                             <span>CAFE</span>
                         </div>
                     </div>
+                    <p className="text-[10px] sm:text-[11px] text-[#9ca3af] font-normal leading-[1.4] mt-0.5 break-keep cursor-default">
+                        ©경상북도교육청 창의융합 교사연구회 수(數)다방
+                    </p>
                 </div>
                 <nav className="flex-1 space-y-2">
                     {navItems.map(item => (
@@ -112,15 +115,20 @@ export function Layout({ children, currentTab, isAdmin, isDarkMode, onToggleDark
             <main className="flex-1 lg:ml-64 pb-24 lg:pb-0 min-h-screen border-r border-[#E5E5EA] dark:border-gray-800 w-full min-w-0 bg-white dark:bg-black relative flex justify-center transition-colors duration-300">
                 <div className="w-full lg:max-w-[700px] flex flex-col border-r border-[#E5E5EA] dark:border-gray-800">
                     {/* Mobile Brand Area */}
-                    <div className="lg:hidden w-full flex flex-col items-center justify-center py-6 px-4 border-b border-[#E5E5EA] dark:border-gray-800">
-                        <div onClick={() => handleTabClick('home')} className="flex items-center gap-1.5 cursor-pointer">
-                            <span className="font-black font-serif text-[28px] text-[#111] dark:text-white leading-none">
-                                M
-                            </span>
-                            <div className="flex flex-col justify-center text-[11px] font-semibold tracking-[0.08em] leading-[1.1] text-gray-600 dark:text-gray-400">
-                                <span>ATH</span>
-                                <span>CAFE</span>
+                    <div className="lg:hidden w-full flex flex-col py-6 px-4 border-b border-[#E5E5EA] dark:border-gray-800">
+                        <div className="flex flex-col items-start gap-1">
+                            <div onClick={() => handleTabClick('home')} className="flex w-max items-center gap-1.5 cursor-pointer transition-transform hover:scale-[1.02]">
+                                <span className="font-black font-serif text-[28px] text-[#111] dark:text-white leading-none">
+                                    M
+                                </span>
+                                <div className="flex flex-col justify-center text-[11px] font-semibold tracking-[0.08em] leading-[1.1] text-gray-600 dark:text-gray-400">
+                                    <span>ATH</span>
+                                    <span>CAFE</span>
+                                </div>
                             </div>
+                            <p className="text-[9.5px] text-[#9ca3af] font-normal leading-[1.4] break-keep cursor-default">
+                                ©경상북도교육청 창의융합 교사연구회 수(數)다방
+                            </p>
                         </div>
                     </div>
                     {children}

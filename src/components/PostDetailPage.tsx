@@ -43,6 +43,34 @@ const getCategoryStyles = (categories: string[]) => {
     };
 };
 
+// URL을 찾아서 a 태그로 변환하는 헬퍼 함수
+const renderTextWithLinks = (text: string) => {
+    if (!text) return text;
+    
+    // http://, https:// 또는 www. 로 시작하는 패턴 (공백 등장 전까지)
+    const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
+    const parts = text.split(urlRegex);
+
+    return parts.map((part, index) => {
+        if (part.match(urlRegex)) {
+            const href = part.startsWith('www.') ? `http://${part}` : part;
+            return (
+                <a 
+                    key={index} 
+                    href={href} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 dark:text-blue-400 hover:underline break-all"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {part}
+                </a>
+            );
+        }
+        return part;
+    });
+};
+
 interface PostDetailPageProps {
     postId: string;
     onBack: () => void;
@@ -232,7 +260,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({ postId, onBack }
 
                         {/* Description Text */}
                         <p className="text-[15px] sm:text-[17px] leading-relaxed text-[#333333] dark:text-gray-300 whitespace-pre-wrap font-medium tracking-tight px-1 transition-colors">
-                            {post.description}
+                            {renderTextWithLinks(post.description)}
                         </p>
 
                         {/* Main Image */}
